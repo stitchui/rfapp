@@ -1,0 +1,18 @@
+/* ============================================================
+   USSPARC — Fonts
+   The .fig embeds no fonts; the codebase renders through MUI,
+   whose Typography defaults to Roboto, while the "US SPARC"
+   wordmark is set in Georgia (a system serif) and chart/table
+   chrome falls back to Inter/Roboto. We ship Roboto + Roboto Mono
+   from Google Fonts and keep Georgia as the system-serif wordmark.
+
+   SUBSTITUTION NOTE: Roboto is used as the faithful match to the
+   MUI-rendered product. If the team has a licensed brand face
+   (e.g. Geist, declared but unused in the Tailwind theme), drop
+   the .woff2 files here and swap the @font-face src below.
+   FONT ROLES (confirmed by the team): Roboto = app default ·
+   Inter = top menu / primary nav · Roboto Mono = tabular figures ·
+   Georgia (system serif) = "US SPARC" wordmark.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');

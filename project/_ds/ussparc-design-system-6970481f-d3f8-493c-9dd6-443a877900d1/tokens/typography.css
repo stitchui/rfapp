@@ -1,0 +1,79 @@
+/* ============================================================
+   USSPARC — Typography tokens
+   Families, sizes, weights and the named text roles observed in
+   the dashboard (metric titles, section titles, figures, labels).
+   ============================================================ */
+
+:root {
+  /* ---- Families ---- */
+  --font-sans: 'Roboto', 'Helvetica Neue', Arial, sans-serif;   /* app default */
+  --font-menu: 'Inter', 'Roboto', 'Helvetica Neue', sans-serif; /* top menu / nav */
+  --font-serif: Georgia, 'Times New Roman', 'Times', serif;     /* wordmark */
+  --font-mono: 'Roboto Mono', 'SF Mono', ui-monospace, monospace;
+
+  /* ---- Weights ---- */
+  --fw-light: 300;     /* @kind font */
+  --fw-regular: 400;   /* @kind font */
+  --fw-medium: 500;    /* @kind font */
+  --fw-semibold: 600;  /* @kind font */
+  --fw-bold: 700;      /* @kind font */
+
+  /* ---- Type scale (px → rem @16) ---- */
+  --fs-2xs: 0.625rem;   /* 10px — REL badge, nav labels */
+  --fs-xs: 0.75rem;     /* 12px — micro labels */
+  --fs-sm: 0.82rem;     /* 13px — table cells, sparkline rows */
+  --fs-base: 0.9375rem; /* 15px — body / data values */
+  --fs-md: 1rem;        /* 16px */
+  --fs-lg: 1.25rem;     /* 20px — wordmark */
+  --fs-xl: 1.3rem;      /* 21px — card / chart titles */
+  --fs-2xl: 1.5rem;     /* 24px — metric-card UPPERCASE title */
+  --fs-figure: 2.375rem;/* 38px — big metric figures */
+  --fs-figure-lg: 3rem; /* 48px — hero KPI figures */
+
+  /* ---- Line heights ---- */
+  --lh-tight: 1.15;    /* @kind font */
+  --lh-snug: 1.3;      /* @kind font */
+  --lh-normal: 1.5;    /* @kind font */
+  --lh-relaxed: 1.65;  /* @kind font */
+
+  /* ---- Letter spacing ---- */
+  --ls-wordmark: 0.04em;
+  --ls-nav: 0.06em;      /* uppercase nav */
+  --ls-cardtitle: 1.5px; /* UPPERCASE metric-card title */
+  --ls-tight: -0.02em;
+
+  /* ============================================================
+     NAMED TEXT ROLES (shorthand custom props)
+     ============================================================ */
+  /* Wordmark — "US SPARC" */
+  --text-wordmark-family: var(--font-serif);
+  --text-wordmark-size: var(--fs-lg);
+  --text-wordmark-weight: var(--fw-regular);
+  --text-wordmark-spacing: var(--ls-wordmark);
+
+  /* Primary nav (DASHBOARD / VaR / STRESS / SUPPORT) */
+  --text-nav-size: var(--fs-2xs);
+  --text-nav-weight: var(--fw-semibold);
+  --text-nav-spacing: var(--ls-nav);
+
+  /* UPPERCASE metric-card title (ENTITY / VALUE AT RISK) */
+  --text-cardtitle-size: var(--fs-2xl);
+  --text-cardtitle-weight: var(--fw-semibold);
+  --text-cardtitle-spacing: var(--ls-cardtitle);
+  --text-cardtitle-color: var(--slate-600);
+
+  /* Section / chart title (VaR Attribution, CDX Index) */
+  --text-sectiontitle-size: var(--fs-xl);
+  --text-sectiontitle-weight: var(--fw-medium);
+  --text-sectiontitle-color: var(--slate-700);
+
+  /* Big metric figure ($2.8M) */
+  --text-figure-size: var(--fs-figure);
+  --text-figure-weight: var(--fw-medium);
+  --text-figure-color: var(--ink-900);
+
+  /* Data label (Market to Market, VaR (99%, 1-Day)) */
+  --text-datalabel-size: var(--fs-base);
+  --text-datalabel-weight: var(--fw-medium);
+  --text-datalabel-color: var(--slate-600);
+}

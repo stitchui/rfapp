@@ -1,0 +1,55 @@
+/* ============================================================
+   USSPARC — Spacing, radii, shadows, layout tokens
+   ============================================================ */
+
+:root {
+  /* ---- Spacing scale (MUI 8px base) ---- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ---- Radii ---- */
+  --radius-xs: 4px;     /* REL badge, small chips */
+  --radius-sm: 8px;     /* inputs, chart cards */
+  --radius-md: 10px;    /* base --radius from theme (0.625rem) */
+  --radius-lg: 12px;    /* metric cell, dashboard cards */
+  --radius-xl: 18px;    /* large panels */
+  --radius-pill: 999px; /* filter selects, segmented controls */
+
+  /* ---- Borders ---- */
+  --bw-hair: 1px;
+  --bw-rule: 1.7px;     /* gradient divider thickness */
+  --bw-accent: 2px;     /* header accent rule */
+  --bw-avatar-ring: 5px;/* card avatar ring */
+
+  /* ---- Shadows ---- */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);            /* dashboard card */
+  --shadow-chart: 0 1px 4px rgba(15, 23, 42, 0.08);        /* chart card */
+  --shadow-metric: 2px 3px 5px -2px rgba(30, 56, 88, 0.28);/* metric cell */
+  --shadow-toggle-inset: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  --shadow-pop: 0 6px 24px rgba(15, 23, 42, 0.14);         /* menus / dialogs */
+  --shadow-btn-blue: 0 1px 3px rgba(35, 94, 165, 0.18);
+
+  /* ---- Header / layout ---- */
+  --header-height: 56px;
+  --header-accent: 2px;       /* lime rule under app bar */
+  --content-max: 1920px;      /* toolbar max width */
+  --dashboard-max: 1200px;    /* centred welcome / content */
+
+  /* ---- Gradient divider (brand blue, fades at ends) ---- */
+  --divider-h: linear-gradient(90deg, transparent 0%, #486c94 50%, transparent 100%); /* @kind other */
+  --divider-v: linear-gradient(180deg, transparent 0%, #486c94 50%, transparent 100%); /* @kind other */
+
+  /* ---- Easing / motion ---- */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --dur-fast: 120ms;  /* @kind other */
+  --dur-base: 180ms;  /* @kind other */
+  --dur-slow: 220ms;  /* @kind other */
+}

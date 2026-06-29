@@ -1,0 +1,104 @@
+/* ============================================================
+   USSPARC — Color tokens
+   Sourced from the USSPARC risk-analytics dashboard codebase
+   (Next.js + MUI). Brand greens from UssparcHeader; card / chart
+   palette from cardStyles.ts and the ag-charts components.
+   ============================================================ */
+
+:root {
+  /* ---- Brand: greens ---- */
+  --green-900: #033928;   /* filter pill background, deepest */
+  --green-800: #004d2c;   /* primary header / app bar */
+  --green-700: #0a5c38;   /* hover / raised green surfaces */
+  --accent-lime: #8dc63f; /* logo + accent rule + REL badge */
+  --accent-lime-bright: #b6e34a; /* logo highlight bar */
+  --go-mint: #cde7c4;     /* GO button fill (pale mint) */
+  --go-mint-ink: #1f5b2e; /* GO button label */
+
+  /* ---- Ink / slate-blue text system ---- */
+  --ink-900: #121b2c;     /* strongest figures / values */
+  --ink-800: #1a2740;     /* headings on light */
+  --slate-700: #3d516b;   /* card + chart titles */
+  --slate-600: #486c94;   /* metric-card titles, data labels (brand blue) */
+  --slate-550: #4c6a92;   /* welcome / page heading */
+  --slate-500: #5f6f85;   /* table header text */
+  --slate-450: #687687;   /* axis labels, muted body */
+  --slate-400: #8b97a4;   /* toolbar icons */
+  --slate-300: #9ca3af;   /* disabled / faint icons */
+
+  /* ---- Filter bar (on dark green) ---- */
+  --on-green-text: #acb6ca;   /* filter select value text */
+  --on-green-muted: #86aaa5;  /* filter floating label / chevron */
+
+  /* ---- Semantic: risk direction ---- */
+  --positive: #1c8783;    /* favourable move (teal) */
+  --positive-bright: #2ea978;
+  --teal-corner: #2b9a93; /* metric-cell corner triangle (down/good) */
+  --negative: #d96a4a;    /* adverse risk move (coral) */
+  --negative-deep: #cf7d38; /* threshold / limit line (amber-orange) */
+  --negative-corner: #e05a3c; /* metric-cell corner triangle (up/bad) */
+
+  /* ---- Chart palette ---- */
+  --chart-bar: #2f6f87;   /* clean PnL / base market value bars */
+  --chart-line-var: #c8b26d; /* VaR / Max-Loss gold line */
+  --chart-limit: #cf7d38; /* limit / threshold line */
+  --chart-grid: #dce4ed;  /* horizontal grid lines */
+  --chart-axis: #687687;  /* axis tick labels */
+  --spark-stroke: #83b79d; /* FX sparkline stroke (green) */
+
+  /* CDX / categorical 5-series legend */
+  --cat-1: #a68b6b;       /* tan */
+  --cat-2: #d4c48a;       /* wheat */
+  --cat-3: #8fa88f;       /* sage */
+  --cat-4: #3d6b7a;       /* deep teal-blue */
+  --cat-5: #c5c9d1;       /* cool grey */
+
+  /* ---- Card-header avatars (concern colour-coding) ---- */
+  --avatar-entity-fill: #aa936c;   --avatar-entity-ring: #e2dcd1; /* tan */
+  --avatar-products-fill: #387f97; --avatar-products-ring: #c5d8dc; /* teal */
+  --avatar-risk-fill: #674b77;     --avatar-risk-ring: #d2cad6;   /* plum */
+
+  /* ---- Surfaces ---- */
+  --surface-page: #f4f4f4;     /* app background under header */
+  --surface-page-cool: #f3f6fb;/* dashboard grid background */
+  --surface-card: #ffffff;     /* card / panel fill */
+  --surface-subtle: #f8fafc;   /* table header / inset rows */
+  --surface-hover: #f8fbff;    /* row hover */
+  --surface-toggle: #eff4fb;   /* segmented-control track */
+
+  /* ---- Lines / borders ---- */
+  --border-card: #e0e0e0;      /* primary card border */
+  --border-soft: #d7dfe8;      /* chart-card border */
+  --border-hair: #eef2f6;      /* table row rule */
+  --border-divider: #d8e2eb;   /* metric-cell grid line */
+
+  /* ---- Toggle / control accents ---- */
+  --toggle-active-ink: #1e3a5f; /* active VaR/SVaR segment */
+  --toggle-icon-active: #2f87d9;/* active chart-type icon (blue) */
+
+  /* ============================================================
+     SEMANTIC ALIASES — prefer these in product code
+     ============================================================ */
+  --color-primary: var(--green-800);
+  --color-primary-deep: var(--green-900);
+  --color-accent: var(--accent-lime);
+
+  --text-strong: var(--ink-900);
+  --text-heading: var(--slate-550);
+  --text-title: var(--slate-700);
+  --text-label: var(--slate-600);
+  --text-body: var(--slate-450);
+  --text-muted: var(--slate-400);
+  --text-on-primary: #ffffff;
+
+  --bg-app: var(--surface-page);
+  --bg-canvas: var(--surface-page-cool);
+  --bg-card: var(--surface-card);
+
+  --border-default: var(--border-card);
+  --border-subtle: var(--border-soft);
+
+  --feedback-positive: var(--positive);
+  --feedback-negative: var(--negative);
+  --feedback-limit: var(--chart-limit);
+}
