@@ -7,9 +7,8 @@ import type { ColDef, GetDataPath, GridApi, GridReadyEvent, IGroupCellRendererPa
 import type { RfRow, RfmGridContext } from './types';
 
 // ---- Curve-level inner renderer (label only; all actions are in Actions column) ----
-function CurveInnerRenderer(params: IGroupCellRendererParams) {
-  const node = params.node;
-  if (!node.group) return null;
+function CurveInnerRenderer(params: any) {
+  if (!params.node?.group) return null;
   return <span>{params.value}</span>;
 }
 
