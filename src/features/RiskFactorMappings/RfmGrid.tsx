@@ -4,38 +4,16 @@ import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, GetDataPath, GridApi, GridReadyEvent, IGroupCellRendererParams } from 'ag-grid-community';
 import type { RfRow, RfmGridContext } from './types';
 
-// ---- Curve-level inner renderer (level 4 group rows) ----
+// ---- Curve-level inner renderer (label + Save/Cancel only; ⋮ is in Actions column) ----
 function CurveInnerRenderer(params: IGroupCellRendererParams) {
-  const [menuAnchor, setMenuAnchor] = useState<{ top: number; left: number } | null>(null);
-  const btnRef = useRef<HTMLButtonElement>(null);
   const ctx = params.context as RfmGridContext;
   const node = params.node;
-
-  useEffect(() => {
-    if (!menuAnchor) return;
-    const handler = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (!btnRef.current?.contains(target)) setMenuAnchor(null);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [menuAnchor]);
 
   if (!node.group) return null;
   if (node.level !== 4) return <span>{params.value}</span>;
 
   const curveKey = (node.getRoute?.() ?? []).join('>');
   const isEditing = ctx.editingCurveKey === curveKey;
-  const rfIds: number[] = (node.allLeafChildren ?? [])
-    .map((n: any) => n.data?.risk_factor_id)
-    .filter((id: any) => id != null);
-
-  const openMenu = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const rect = btnRef.current?.getBoundingClientRect();
-    if (rect) setMenuAnchor({ top: rect.bottom + 4, left: rect.right - 148 });
-    else setMenuAnchor(null);
-  };
 
   if (isEditing) {
     return (
@@ -51,28 +29,7 @@ function CurveInnerRenderer(params: IGroupCellRendererParams) {
     );
   }
 
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-      <span>{params.value}</span>
-      <button ref={btnRef} onClick={openMenu} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 6px', borderRadius: 4, fontSize: 18, color: '#555', lineHeight: 1 }} title="Actions">
-        ⋮
-      </button>
-      {menuAnchor && createPortal(
-        <div
-          style={{ position: 'fixed', top: menuAnchor.top, left: menuAnchor.left, zIndex: 9999, background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,.12)', minWidth: 148, overflow: 'hidden' }}
-          onMouseDown={e => e.stopPropagation()}
-        >
-          <div onClick={() => { ctx.onStartEdit(curveKey); setMenuAnchor(null); }} style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 13 }} onMouseEnter={e => (e.currentTarget.style.background = '#f5f5f5')} onMouseLeave={e => (e.currentTarget.style.background = '')}>
-            Edit
-          </div>
-          <div onClick={() => { ctx.onArchiveCurve(curveKey, rfIds); setMenuAnchor(null); }} style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 13, color: '#c0392b' }} onMouseEnter={e => (e.currentTarget.style.background = '#fff5f5')} onMouseLeave={e => (e.currentTarget.style.background = '')}>
-            Archive Curve
-          </div>
-        </div>,
-        document.body
-      )}
-    </div>
-  );
+  return <span>{params.value}</span>;
 }
 
 // ---- Editable cell renderer for leaf rows ----
@@ -130,11 +87,64 @@ function makeEditableRenderer(field: string, type: 'text' | 'select' = 'text', o
   );
 }
 
-// ---- Archive button for leaf rows ----
-function ArchiveRowRenderer(params: any) {
+// ---- Actions column: ⋮ menu for curve rows, Archive for leaf rows ----
+function ActionsRenderer(params: any) {
+  const [menuAnchor, setMenuAnchor] = useState<{ top: number; left: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
   const ctx = params.context as RfmGridContext;
+  const node = params.node;
+
+  useEffect(() => {
+    if (!menuAnchor) return;
+    const handler = (e: MouseEvent) => {
+      if (!btnRef.current?.contains(e.target as Node)) setMenuAnchor(null);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [menuAnchor]);
+
+  // Curve-level group row → ⋮ menu
+  if (node.group && node.level === 4) {
+    const curveKey = (node.getRoute?.() ?? []).join('>');
+    const isEditing = ctx.editingCurveKey === curveKey;
+    if (isEditing) return null;
+
+    const rfIds: number[] = (node.allLeafChildren ?? [])
+      .map((n: any) => n.data?.risk_factor_id)
+      .filter((id: any) => id != null);
+
+    const openMenu = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const rect = btnRef.current?.getBoundingClientRect();
+      if (rect) setMenuAnchor({ top: rect.bottom + 4, left: rect.right - 148 });
+    };
+
+    return (
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%', paddingRight: 8 }}>
+        <button ref={btnRef} onClick={openMenu} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 8px', borderRadius: 4, fontSize: 20, color: '#555', lineHeight: 1 }} title="Actions">
+          ⋮
+        </button>
+        {menuAnchor && createPortal(
+          <div
+            style={{ position: 'fixed', top: menuAnchor.top, left: menuAnchor.left, zIndex: 9999, background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,.12)', minWidth: 148, overflow: 'hidden' }}
+            onMouseDown={e => e.stopPropagation()}
+          >
+            <div onClick={() => { ctx.onStartEdit(curveKey); setMenuAnchor(null); }} style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 13 }} onMouseEnter={e => (e.currentTarget.style.background = '#f5f5f5')} onMouseLeave={e => (e.currentTarget.style.background = '')}>
+              Edit
+            </div>
+            <div onClick={() => { ctx.onArchiveCurve(curveKey, rfIds); setMenuAnchor(null); }} style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 13, color: '#c0392b' }} onMouseEnter={e => (e.currentTarget.style.background = '#fff5f5')} onMouseLeave={e => (e.currentTarget.style.background = '')}>
+              Archive Curve
+            </div>
+          </div>,
+          document.body
+        )}
+      </div>
+    );
+  }
+
+  // Leaf row → Archive button
   const data = params.data as RfRow;
-  if (!data || params.node.group) return null;
+  if (!data || node.group) return null;
   const curveKey = data._path.slice(0, 5).join('>');
   if (ctx.editingCurveKey === curveKey) return null;
 
@@ -142,11 +152,7 @@ function ArchiveRowRenderer(params: any) {
     <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%', paddingRight: 8 }}>
       <button
         onClick={() => ctx.onArchiveRow(data.risk_factor_id, data.risk_factor_name)}
-        title="Archive row"
-        style={{
-          background: 'none', border: '1px solid #e0e0e0', borderRadius: 5,
-          cursor: 'pointer', padding: '3px 8px', fontSize: 12, color: '#888',
-        }}
+        style={{ background: 'none', border: '1px solid #e0e0e0', borderRadius: 5, cursor: 'pointer', padding: '3px 8px', fontSize: 12, color: '#888' }}
       >
         Archive
       </button>
@@ -245,7 +251,7 @@ export function RfmGrid({ rowData, context, onGridReady }: RfmGridProps) {
       resizable: false,
       suppressMovable: true,
       suppressSizeToFit: true,
-      cellRenderer: ArchiveRowRenderer,
+      cellRenderer: ActionsRenderer,
     },
   ], []);
 
