@@ -238,7 +238,7 @@ export function RfmGrid({ rowData, context, onGridReady }: RfmGridProps) {
     {
       colId: 'actions',
       headerName: 'Actions',
-      width: 100,
+      width: 160,
       resizable: false,
       suppressMovable: true,
       suppressSizeToFit: true,
