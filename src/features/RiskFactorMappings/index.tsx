@@ -134,7 +134,7 @@ export default function RiskFactorMappings({
     const changed = getChangedRows();
     if (!changed.length) return;
     setBusy(true);
-    setLastRequest({ method: 'POST', url: '/riskfactor/mappings/edit', body: changed });
+    setLastRequest({ method: 'POST', url: '/mappings/save', body: changed });
     setTimeout(() => {
       changed.forEach(row => {
         const o = rfByIdRef.current[row.risk_factor_id];
@@ -176,9 +176,10 @@ export default function RiskFactorMappings({
     if (!dialog?.curveKey || !dialog.curveNode?.curve) return;
     const curveKey = dialog.curveKey;
     const curveNode = dialog.curveNode;
-    const body = curveNode.curve!;
+    const curveRows = curveNode.rows ?? [];
+    const body = { risk_factor_ids: curveRows.map(r => r.risk_factor_id) };
     setBusy(true);
-    setLastRequest({ method: 'POST', url: '/riskfactor/mappings/archive-curve', body });
+    setLastRequest({ method: 'POST', url: '/mappings/archive', body });
     setTimeout(() => {
       archivedCurvesRef.current.add(curveKey);
       const newEditingId = editingCurveId === curveKey ? null : editingCurveId;
@@ -194,7 +195,7 @@ export default function RiskFactorMappings({
     if (!dialog?.rfData) return;
     const { rfData } = dialog;
     setBusy(true);
-    setLastRequest({ method: 'POST', url: '/riskfactor/mappings/archive-row', body: { risk_factor_id: rfData.risk_factor_id } });
+    setLastRequest({ method: 'POST', url: '/mappings/archive', body: { risk_factor_ids: [rfData.risk_factor_id] } });
     setTimeout(() => {
       archivedRowsRef.current.add(rfData.risk_factor_id);
       setBusy(false);
@@ -215,8 +216,7 @@ export default function RiskFactorMappings({
     const chosen = create.items.filter(n => create.selected[n]);
     if (!chosen.length) return;
     const ccy = 'AED';
-    const rows: RfRow[] = chosen.map(n => ({
-      risk_factor_id: _nextId++,
+    const baseRow = (n: string) => ({
       risk_factor_name: n, rf_alternative_name: '',
       risk_factor_class: create.cls, rf_subclass: create.sub, rf_type: create.typ,
       currency: ccy, curve_name: create.curve, instrument_type: create.curve,
@@ -229,9 +229,11 @@ export default function RiskFactorMappings({
       margin_type: 'ClearingHouse', sequence_number: 0,
       vol_expiry: '', vol_parameter_name: '', vol_quote_moneyness: '',
       vol_strike: '', vol_tenor: '', node_selector_name: '', expiry_month: '',
-    }));
+    });
+    const payload: RfRow[] = chosen.map(n => ({ risk_factor_id: 0, ...baseRow(n) }));
+    const rows: RfRow[] = chosen.map(n => ({ risk_factor_id: _nextId++, ...baseRow(n) }));
     setBusy(true);
-    setLastRequest({ method: 'POST', url: '/riskfactor/mappings/create', body: rows });
+    setLastRequest({ method: 'POST', url: '/mappings/save', body: payload });
     setTimeout(() => {
       insertCurve(treeRef.current, create.cls, create.sub, create.typ, ccy, create.curve, rows);
       rows.forEach(r => { rfByIdRef.current[r.risk_factor_id] = r; });
