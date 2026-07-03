@@ -65,29 +65,30 @@ export default function RiskFactorMappings() {
   }, []);
 
   const onSave = useCallback(() => {
-    const changed = Object.keys(edits).reduce<RfRow[]>((out, idStr) => {
-      const rfId = parseInt(idStr);
-      const orig = rfByIdRef.current[rfId];
-      if (!orig) return out;
-      const e = edits[rfId];
+    if (!editingCurveKey) { onCancelEdit(); return; }
+    const curveRows = allRows.filter(r => r._path.slice(0, 5).join('>') === editingCurveKey);
+    const payload = curveRows.map(orig => {
+      const e = edits[orig.risk_factor_id];
       const dirty = e && Object.keys(e).some(f => String((e as any)[f]) !== String((orig as any)[f]));
-      if (dirty) out.push({ ...orig, ...e, risk_factor_id: orig.risk_factor_id });
-      return out;
-    }, []);
-    if (!changed.length) { onCancelEdit(); return; }
+      if (!dirty) return { risk_factor_id: orig.risk_factor_id };
+      const { _path, ...rest } = { ...orig, ...e, risk_factor_id: orig.risk_factor_id };
+      void _path;
+      return rest;
+    });
+    const dirtyCount = payload.filter(r => Object.keys(r).length > 1).length;
     setBusy(true);
-    setLastRequest({ method: 'POST', url: '/mappings/save', body: changed });
+    setLastRequest({ method: 'POST', url: '/mappings/save', body: payload });
     setTimeout(() => {
-      changed.forEach(row => {
-        const o = rfByIdRef.current[row.risk_factor_id];
-        if (o) Object.assign(o, row);
+      curveRows.forEach(orig => {
+        const e = edits[orig.risk_factor_id];
+        if (e) Object.assign(rfByIdRef.current[orig.risk_factor_id] ?? {}, e);
       });
       setBusy(false);
       setEditingCurveKey(null);
       setEdits({});
-      showSnack(`${changed.length} risk factor${changed.length > 1 ? 's' : ''} updated`);
+      showSnack(`${dirtyCount} risk factor${dirtyCount > 1 ? 's' : ''} updated`);
     }, 900);
-  }, [edits, onCancelEdit, showSnack]);
+  }, [editingCurveKey, edits, onCancelEdit, showSnack]);
 
   // ---- Archive callbacks ----
   const onArchiveCurve = useCallback((curveKey: string, rfIds: number[]) => {
