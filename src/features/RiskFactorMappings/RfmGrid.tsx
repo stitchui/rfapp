@@ -145,7 +145,7 @@ function ActionsRenderer(params: any) {
       <button
         onClick={() => ctx.onArchiveRow(data.risk_factor_id, data.risk_factor_name)}
         title="Archive"
-        style={{ background: 'none', border: '1px solid #e0e0e0', borderRadius: 5, cursor: 'pointer', padding: '3px 6px', display: 'flex', alignItems: 'center', color: '#888' }}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '3px 6px', display: 'flex', alignItems: 'center', color: '#aaa' }}
       >
         <ArchiveOutlinedIcon style={{ fontSize: 16 }} />
       </button>

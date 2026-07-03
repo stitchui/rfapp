@@ -178,7 +178,7 @@ export default function RiskFactorMappings() {
           </Button>
         </Box>
 
-        <Paper elevation={0} sx={{ border: '1px solid #e0e0e0', borderRadius: '18px', boxShadow: '0 2px 8px rgba(0,0,0,.08)', overflow: 'hidden' }}>
+        <Paper elevation={0} sx={{ border: '1px solid #e0e0e0', borderRadius: '18px', boxShadow: '0 2px 8px rgba(0,0,0,.08)', overflow: 'hidden', p: '12px 16px' }}>
           <RfmGrid rowData={rowData} context={gridContext} />
         </Paper>
 
