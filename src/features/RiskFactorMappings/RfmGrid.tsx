@@ -4,31 +4,10 @@ import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, GetDataPath, GridApi, GridReadyEvent, IGroupCellRendererParams } from 'ag-grid-community';
 import type { RfRow, RfmGridContext } from './types';
 
-// ---- Curve-level inner renderer (label + Save/Cancel only; ⋮ is in Actions column) ----
+// ---- Curve-level inner renderer (label only; all actions are in Actions column) ----
 function CurveInnerRenderer(params: IGroupCellRendererParams) {
-  const ctx = params.context as RfmGridContext;
   const node = params.node;
-
   if (!node.group) return null;
-  if (node.level !== 4) return <span>{params.value}</span>;
-
-  const curveKey = (node.getRoute?.() ?? []).join('>');
-  const isEditing = ctx.editingCurveKey === curveKey;
-
-  if (isEditing) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
-        <span style={{ fontWeight: 600 }}>{params.value}</span>
-        <button disabled={ctx.busy} onClick={ctx.onSave} style={{ padding: '3px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', background: '#004d2c', color: '#fff', fontSize: 12, fontWeight: 600, opacity: ctx.busy ? 0.5 : 1 }}>
-          Save
-        </button>
-        <button disabled={ctx.busy} onClick={ctx.onCancelEdit} style={{ padding: '3px 12px', borderRadius: 6, border: '1px solid #ccc', cursor: 'pointer', background: '#fff', color: '#333', fontSize: 12, opacity: ctx.busy ? 0.5 : 1 }}>
-          Cancel
-        </button>
-      </div>
-    );
-  }
-
   return <span>{params.value}</span>;
 }
 
@@ -103,11 +82,23 @@ function ActionsRenderer(params: any) {
     return () => document.removeEventListener('mousedown', handler);
   }, [menuAnchor]);
 
-  // Curve-level group row → ⋮ menu
+  // Curve-level group row → Save/Cancel when editing, ⋮ menu otherwise
   if (node.group && node.level === 4) {
     const curveKey = (node.getRoute?.() ?? []).join('>');
     const isEditing = ctx.editingCurveKey === curveKey;
-    if (isEditing) return null;
+
+    if (isEditing) {
+      return (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%', gap: 6, paddingRight: 8 }}>
+          <button disabled={ctx.busy} onClick={ctx.onSave} style={{ padding: '3px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', background: '#004d2c', color: '#fff', fontSize: 12, fontWeight: 600, opacity: ctx.busy ? 0.5 : 1 }}>
+            Save
+          </button>
+          <button disabled={ctx.busy} onClick={ctx.onCancelEdit} style={{ padding: '3px 12px', borderRadius: 6, border: '1px solid #ccc', cursor: 'pointer', background: '#fff', color: '#333', fontSize: 12, opacity: ctx.busy ? 0.5 : 1 }}>
+            Cancel
+          </button>
+        </div>
+      );
+    }
 
     const rfIds: number[] = (node.allLeafChildren ?? [])
       .map((n: any) => n.data?.risk_factor_id)
