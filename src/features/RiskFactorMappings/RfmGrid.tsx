@@ -1,5 +1,6 @@
 import { useMemo, useRef, useCallback, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { Box, Button, IconButton, Paper, MenuItem } from '@mui/material';
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
 import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, GetDataPath, GridApi, GridReadyEvent, IGroupCellRendererParams } from 'ag-grid-community';
@@ -32,31 +33,38 @@ function EditableCell({ value, data, context: ctx, field, type = 'text', options
 
   if (!isEditing) return <span>{String(value ?? '')}</span>;
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%', boxSizing: 'border-box',
-    padding: '3px 7px', borderRadius: 5,
+  const inputSx = {
+    width: '100%',
+    boxSizing: 'border-box',
+    px: '7px',
+    py: '3px',
+    borderRadius: '5px',
     border: isDirty ? '1.5px solid #1c8783' : '1px solid #ccc',
-    background: isDirty ? '#eef7e0' : '#fff',
-    fontSize: 13, outline: 'none',
+    bgcolor: isDirty ? '#eef7e0' : '#fff',
+    fontSize: 13,
+    outline: 'none',
+    fontFamily: 'inherit',
   };
 
   if (type === 'select' && options) {
     return (
-      <select
+      <Box
+        component="select"
         value={currentValue}
-        onChange={e => ctx.onEditCell(data.risk_factor_id, field, e.target.value)}
-        style={inputStyle}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => ctx.onEditCell(data.risk_factor_id, field, e.target.value)}
+        sx={inputSx}
       >
         {options.map(o => <option key={o} value={o}>{o}</option>)}
-      </select>
+      </Box>
     );
   }
 
   return (
-    <input
+    <Box
+      component="input"
       value={currentValue}
-      onChange={e => ctx.onEditCell(data.risk_factor_id, field, e.target.value)}
-      style={inputStyle}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => ctx.onEditCell(data.risk_factor_id, field, e.target.value)}
+      sx={inputSx}
     />
   );
 }
@@ -90,14 +98,26 @@ function ActionsRenderer(params: any) {
 
     if (isEditing) {
       return (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%', gap: 6, paddingRight: 8 }}>
-          <button disabled={ctx.busy} onClick={ctx.onCancelEdit} style={{ padding: '3px 12px', borderRadius: 6, border: '1px solid #ccc', cursor: 'pointer', background: '#fff', color: '#333', fontSize: 12, opacity: ctx.busy ? 0.5 : 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%', gap: '6px', pr: 1 }}>
+          <Button
+            size="small"
+            disabled={ctx.busy}
+            onClick={ctx.onCancelEdit}
+            sx={{ fontSize: 12, textTransform: 'none', color: '#333', borderColor: '#ccc', minWidth: 0 }}
+            variant="outlined"
+          >
             Cancel
-          </button>
-          <button disabled={ctx.busy || !ctx.hasDirtyEdits} onClick={ctx.onSave} style={{ padding: '3px 12px', borderRadius: 6, border: 'none', cursor: ctx.hasDirtyEdits && !ctx.busy ? 'pointer' : 'not-allowed', background: '#004d2c', color: '#fff', fontSize: 12, fontWeight: 600, opacity: ctx.busy || !ctx.hasDirtyEdits ? 0.4 : 1 }}>
+          </Button>
+          <Button
+            size="small"
+            disabled={ctx.busy || !ctx.hasDirtyEdits}
+            onClick={ctx.onSave}
+            variant="contained"
+            sx={{ fontSize: 12, textTransform: 'none', bgcolor: '#004d2c', fontWeight: 600, minWidth: 0, '&:hover': { bgcolor: '#0a5c38' }, '&.Mui-disabled': { bgcolor: '#004d2c', color: '#fff', opacity: 0.4 } }}
+          >
             Save
-          </button>
-        </div>
+          </Button>
+        </Box>
       );
     }
 
@@ -112,44 +132,46 @@ function ActionsRenderer(params: any) {
     };
 
     return (
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%', paddingRight: 8 }}>
-        <button ref={btnRef} onClick={openMenu} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 8px', borderRadius: 4, fontSize: 20, color: '#555', lineHeight: 1 }} title="Actions">
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%', pr: 1 }}>
+        <IconButton ref={btnRef} onClick={openMenu} size="small" sx={{ color: '#555', fontSize: 20, lineHeight: 1 }}>
           ⋮
-        </button>
+        </IconButton>
         {menuAnchor && createPortal(
-          <div
-            style={{ position: 'fixed', top: menuAnchor.top, left: menuAnchor.left, zIndex: 9999, background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,.12)', minWidth: 148, overflow: 'hidden' }}
+          <Paper
+            elevation={3}
+            sx={{ position: 'fixed', top: menuAnchor.top, left: menuAnchor.left, zIndex: 9999, minWidth: 148, borderRadius: 2, overflow: 'hidden' }}
             onMouseDown={e => e.stopPropagation()}
           >
-            <div onClick={() => { ctx.onStartEdit(curveKey); setMenuAnchor(null); }} style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 13 }} onMouseEnter={e => (e.currentTarget.style.background = '#f5f5f5')} onMouseLeave={e => (e.currentTarget.style.background = '')}>
+            <MenuItem onClick={() => { ctx.onStartEdit(curveKey); setMenuAnchor(null); }} sx={{ fontSize: 13 }}>
               Edit
-            </div>
-            <div onClick={() => { ctx.onArchiveCurve(curveKey, rfIds); setMenuAnchor(null); }} style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 13, color: '#c0392b' }} onMouseEnter={e => (e.currentTarget.style.background = '#fff5f5')} onMouseLeave={e => (e.currentTarget.style.background = '')}>
+            </MenuItem>
+            <MenuItem onClick={() => { ctx.onArchiveCurve(curveKey, rfIds); setMenuAnchor(null); }} sx={{ fontSize: 13, color: '#c0392b' }}>
               Archive Curve
-            </div>
-          </div>,
+            </MenuItem>
+          </Paper>,
           document.body
         )}
-      </div>
+      </Box>
     );
   }
 
-  // Leaf row → Archive button
+  // Leaf row → Archive icon button
   const data = params.data as RfRow;
   if (!data || node.group) return null;
   const curveKey = data._path.slice(0, 5).join('>');
   if (ctx.editingCurveKey === curveKey) return null;
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%', paddingRight: 8 }}>
-      <button
-        onClick={() => ctx.onArchiveRow(data.risk_factor_id, data.risk_factor_name)}
+    <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%', pr: 1 }}>
+      <IconButton
+        size="small"
         title="Archive"
-        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '3px 6px', display: 'flex', alignItems: 'center', color: '#aaa' }}
+        onClick={() => ctx.onArchiveRow(data.risk_factor_id, data.risk_factor_name)}
+        sx={{ color: '#aaa' }}
       >
-        <ArchiveOutlinedIcon style={{ fontSize: 16 }} />
-      </button>
-    </div>
+        <ArchiveOutlinedIcon sx={{ fontSize: 16 }} />
+      </IconButton>
+    </Box>
   );
 }
 
