@@ -44,5 +44,6 @@ export interface RfmGridContext {
   onArchiveCurve: (curveKey: string, rfIds: number[]) => void;
   onArchiveRow: (rfId: number, name: string) => void;
   busy: boolean;
+  hasDirtyEdits: boolean;
   dirtyTint: string;
 }

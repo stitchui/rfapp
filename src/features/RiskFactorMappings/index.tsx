@@ -130,6 +130,16 @@ export default function RiskFactorMappings() {
   const closeDialog = useCallback(() => { if (!busy) setDialog(null); }, [busy]);
 
   // ---- Grid context ----
+  const hasDirtyEdits = useMemo(() => {
+    return Object.keys(edits).some(idStr => {
+      const rfId = parseInt(idStr);
+      const orig = rfByIdRef.current[rfId];
+      if (!orig) return false;
+      const e = edits[rfId];
+      return e && Object.keys(e).some(f => String((e as any)[f]) !== String((orig as any)[f]));
+    });
+  }, [edits]);
+
   const gridContext = useMemo<RfmGridContext>(() => ({
     editingCurveKey,
     edits,
@@ -140,8 +150,9 @@ export default function RiskFactorMappings() {
     onArchiveCurve,
     onArchiveRow,
     busy,
+    hasDirtyEdits,
     dirtyTint: '#eef7e0',
-  }), [editingCurveKey, edits, onStartEdit, onCancelEdit, onSave, onEditCell, onArchiveCurve, onArchiveRow, busy]);
+  }), [editingCurveKey, edits, onStartEdit, onCancelEdit, onSave, onEditCell, onArchiveCurve, onArchiveRow, busy, hasDirtyEdits]);
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f4f4f4' }}>

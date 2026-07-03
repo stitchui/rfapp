@@ -93,7 +93,7 @@ function ActionsRenderer(params: any) {
           <button disabled={ctx.busy} onClick={ctx.onCancelEdit} style={{ padding: '3px 12px', borderRadius: 6, border: '1px solid #ccc', cursor: 'pointer', background: '#fff', color: '#333', fontSize: 12, opacity: ctx.busy ? 0.5 : 1 }}>
             Cancel
           </button>
-          <button disabled={ctx.busy} onClick={ctx.onSave} style={{ padding: '3px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', background: '#004d2c', color: '#fff', fontSize: 12, fontWeight: 600, opacity: ctx.busy ? 0.5 : 1 }}>
+          <button disabled={ctx.busy || !ctx.hasDirtyEdits} onClick={ctx.onSave} style={{ padding: '3px 12px', borderRadius: 6, border: 'none', cursor: ctx.hasDirtyEdits && !ctx.busy ? 'pointer' : 'not-allowed', background: '#004d2c', color: '#fff', fontSize: 12, fontWeight: 600, opacity: ctx.busy || !ctx.hasDirtyEdits ? 0.4 : 1 }}>
             Save
           </button>
         </div>
