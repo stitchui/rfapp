@@ -1,173 +1,107 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useMemo } from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import type { ColDef, GridApi, GridReadyEvent, IHeaderParams } from 'ag-grid-community';
-import type { RfmRowData, RfmGridContext } from './types';
-import { NameRenderer } from './renderers/NameRenderer';
-import { DataCellRenderer } from './renderers/DataCellRenderer';
-import { ActionsRenderer } from './renderers/ActionsRenderer';
+import type { ColDef, GetDataPath, ICellRendererParams } from 'ag-grid-community';
+import type { RfRow } from './types';
 
-function RfmColumnHeader({ displayName, showEditIcon }: IHeaderParams & { showEditIcon?: boolean }) {
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 5, height: '100%',
-      paddingLeft: 12, paddingRight: 12,
-      fontWeight: 600, fontSize: 11.5, letterSpacing: '.07em',
-      textTransform: 'uppercase' as const, color: '#5f6f85',
-    }}>
-      {displayName}
-      {showEditIcon && (
-        <span className="material-symbols-rounded" style={{ fontSize: 14, color: '#1c8783' }}>
-          edit
-        </span>
-      )}
-    </div>
-  );
-}
+const getDataPath: GetDataPath<RfRow> = (row) => row._path;
 
-function ActionsColumnHeader({ displayName }: IHeaderParams) {
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
-      height: '100%', paddingRight: 16,
-      fontWeight: 600, fontSize: 11.5, letterSpacing: '.07em',
-      textTransform: 'uppercase' as const, color: '#8b97a4',
-    }}>
-      {displayName}
-    </div>
-  );
-}
+const autoGroupColumnDef: ColDef<RfRow> = {
+  headerName: 'Grouped',
+  minWidth: 225,
+  resizable: true,
+  suppressMovable: true,
+  suppressSizeToFit: true,
+  cellRenderer: 'agGroupCellRenderer',
+  cellRendererParams: {
+    suppressCount: false,
+    // Leaf rows (depth 5) show nothing in the group column — Name column handles it
+    innerRenderer: (params: ICellRendererParams) => {
+      if (!params.node.group) return '';
+      return params.value ?? '';
+    },
+  },
+};
 
 interface RfmGridProps {
-  rowData: RfmRowData[];
-  context: RfmGridContext;
-  editableFields: string[];
-  onGridReady?: (api: GridApi) => void;
+  rowData: RfRow[];
 }
 
-export function RfmGrid({ rowData, context, editableFields, onGridReady }: RfmGridProps) {
-  const gridApiRef = useRef<GridApi | null>(null);
-
-  const colDefs = useMemo<ColDef<RfmRowData>[]>(() => [
+export function RfmGrid({ rowData }: RfmGridProps) {
+  const colDefs = useMemo<ColDef<RfRow>[]>(() => [
     {
       colId: 'name',
-      headerName: 'Risk Factor',
-      flex: 2.6,
-      minWidth: 280,
-      cellRenderer: NameRenderer,
-      headerComponent: RfmColumnHeader,
-      headerComponentParams: { showEditIcon: false },
+      field: 'risk_factor_name',
+      headerName: 'Name',
+      flex: 2,
+      minWidth: 200,
       suppressMovable: true,
     },
     {
       colId: 'clearingHouse',
+      field: 'alt_clearing_house',
       headerName: 'Clearing House',
       flex: 1.3,
       minWidth: 100,
-      cellRenderer: DataCellRenderer,
-      cellRendererParams: { field: 'alt_clearing_house', type: 'static' },
-      headerComponent: RfmColumnHeader,
       suppressMovable: true,
     },
     {
       colId: 'futureTenor',
+      field: 'future_tenor',
       headerName: 'Future Tenor',
       flex: 1,
       minWidth: 90,
-      cellRenderer: DataCellRenderer,
-      cellRendererParams: { field: 'future_tenor', type: 'text' },
-      headerComponent: RfmColumnHeader,
-      headerComponentParams: { showEditIcon: editableFields.includes('future_tenor') },
       suppressMovable: true,
     },
     {
       colId: 'termCode',
+      field: 'term_code',
       headerName: 'Term Code',
       flex: 1,
       minWidth: 90,
-      cellRenderer: DataCellRenderer,
-      cellRendererParams: { field: 'term_code', type: 'text' },
-      headerComponent: RfmColumnHeader,
-      headerComponentParams: { showEditIcon: editableFields.includes('term_code') },
       suppressMovable: true,
     },
     {
       colId: 'shockType',
+      field: 'shock_type',
       headerName: 'Shock Type',
       flex: 1.2,
       minWidth: 100,
-      cellRenderer: DataCellRenderer,
-      cellRendererParams: { field: 'shock_type', type: 'select', options: ['Absolute', 'Relative', 'Log'] },
-      headerComponent: RfmColumnHeader,
-      headerComponentParams: { showEditIcon: editableFields.includes('shock_type') },
       suppressMovable: true,
     },
     {
       colId: 'tenorDim',
+      field: 'tenor_dimension',
       headerName: 'Tenor Dim',
       flex: 1,
       minWidth: 90,
-      cellRenderer: DataCellRenderer,
-      cellRendererParams: { field: 'tenor_dimension', type: 'text' },
-      headerComponent: RfmColumnHeader,
-      headerComponentParams: { showEditIcon: editableFields.includes('tenor_dimension') },
       suppressMovable: true,
     },
     {
       colId: 'rfId',
+      field: 'risk_factor_id',
       headerName: 'RF ID',
       flex: 0.95,
       minWidth: 80,
-      cellRenderer: DataCellRenderer,
-      cellRendererParams: { field: 'risk_factor_id', type: 'static', mono: true },
-      headerComponent: RfmColumnHeader,
       suppressMovable: true,
     },
-    {
-      colId: 'actions',
-      headerName: 'Actions',
-      width: 156,
-      suppressSizeToFit: true,
-      resizable: false,
-      cellRenderer: ActionsRenderer,
-      headerComponent: ActionsColumnHeader,
-      suppressMovable: true,
-    },
-  ], [editableFields]);
-
-  // Force row refresh when row data changes to ensure getRowClass / getRowStyle are reapplied
-  useEffect(() => {
-    if (gridApiRef.current) {
-      gridApiRef.current.redrawRows();
-    }
-  }, [rowData]);
-
-  const handleGridReady = (event: GridReadyEvent) => {
-    gridApiRef.current = event.api;
-    onGridReady?.(event.api);
-  };
+  ], []);
 
   return (
-    <AgGridReact<RfmRowData>
+    <AgGridReact<RfRow>
       className="rfm-grid ag-theme-quartz"
       rowData={rowData}
       columnDefs={colDefs}
-      context={context}
-      getRowId={params => params.data._id}
+      treeData
+      getDataPath={getDataPath}
+      autoGroupColumnDef={autoGroupColumnDef}
+      groupDefaultExpanded={1}
+      getRowId={(params) => String(params.data.risk_factor_id)}
       rowHeight={46}
       headerHeight={46}
       domLayout="autoHeight"
       suppressMovableColumns
-      suppressColumnVirtualisation
       suppressCellFocus
       animateRows={false}
-      onGridReady={handleGridReady}
-      getRowClass={params => {
-        const d = params.data;
-        if (!d) return 'rfm-row-default';
-        if (d._type === 'group' && d._isCurve && d._isEditing) return 'rfm-row-curve-editing';
-        if (d._type === 'leaf' && d._isEditingCurve) return 'rfm-row-leaf-editing';
-        return 'rfm-row-default';
-      }}
     />
   );
 }
