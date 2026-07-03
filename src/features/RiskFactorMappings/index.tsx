@@ -125,7 +125,7 @@ export default function RiskFactorMappings({
       if (!orig) return out;
       const e = edits[rfId];
       const changed = e && Object.keys(e).some(f => String(e[f as keyof typeof e]) !== String(orig[f as keyof RfRow]));
-      if (changed) out.push({ ...orig, ...e, rfId: orig.rfId });
+      if (changed) out.push({ ...orig, ...e, risk_factor_id: orig.risk_factor_id });
       return out;
     }, []);
   }, [edits]);
@@ -137,7 +137,7 @@ export default function RiskFactorMappings({
     setLastRequest({ method: 'POST', url: '/riskfactor/mappings/edit', body: changed });
     setTimeout(() => {
       changed.forEach(row => {
-        const o = rfByIdRef.current[row.rfId];
+        const o = rfByIdRef.current[row.risk_factor_id];
         if (o) Object.assign(o, row);
       });
       setBusy(false);
@@ -186,7 +186,7 @@ export default function RiskFactorMappings({
       setDialog(null);
       setEditingCurveId(newEditingId);
       setTreeVersion(v => v + 1);
-      showSnack(`Curve "${body.curveNm}" archived`);
+      showSnack(`Curve "${body.curve_name}" archived`);
     }, 900);
   }, [dialog, editingCurveId, showSnack]);
 
@@ -194,13 +194,13 @@ export default function RiskFactorMappings({
     if (!dialog?.rfData) return;
     const { rfData } = dialog;
     setBusy(true);
-    setLastRequest({ method: 'POST', url: '/riskfactor/mappings/archive-row', body: { rfId: rfData.rfId } });
+    setLastRequest({ method: 'POST', url: '/riskfactor/mappings/archive-row', body: { risk_factor_id: rfData.risk_factor_id } });
     setTimeout(() => {
-      archivedRowsRef.current.add(rfData.rfId);
+      archivedRowsRef.current.add(rfData.risk_factor_id);
       setBusy(false);
       setDialog(null);
       setTreeVersion(v => v + 1);
-      showSnack(`Risk factor ${rfData.rfId} archived`);
+      showSnack(`Risk factor ${rfData.risk_factor_id} archived`);
     }, 800);
   }, [dialog, showSnack]);
 
@@ -216,20 +216,25 @@ export default function RiskFactorMappings({
     if (!chosen.length) return;
     const ccy = 'AED';
     const rows: RfRow[] = chosen.map(n => ({
-      rfId: _nextId++,
-      rfNm: n, altRfNm: '',
-      rfClassCd: create.cls, rfSubclassCd: create.sub, rfTypeCd: create.typ,
-      currencyCd: ccy, curveNm: create.curve, curveInstrumentTypeNm: create.curve,
-      clearingHouseCd: 'LCH',
-      futureTenorCd: '0', termCd: n.split('.').pop() ?? '',
-      shockTypeCd: 'Absolute', tenorDimensionCd: '1',
-      validFromTs: new Date().toISOString().slice(0, 10), validToTs: null, sourceNm: 'NEVA',
+      risk_factor_id: _nextId++,
+      risk_factor_name: n, rf_alternative_name: '',
+      risk_factor_class: create.cls, rf_subclass: create.sub, rf_type: create.typ,
+      currency: ccy, curve_name: create.curve, instrument_type: create.curve,
+      alt_clearing_house: 'LCH',
+      future_tenor: '', term_code: n.split('.').pop() ?? '',
+      shock_type: 'Absolute', tenor_dimension: '1',
+      valid_from: new Date().toISOString().slice(0, 10), valid_to: null, source_name: 'MarketData',
+      base_curve: create.curve, basis_curve: '', currency_pair: '',
+      curve_type: create.sub, effective_currency: ccy,
+      margin_type: 'ClearingHouse', sequence_number: 0,
+      vol_expiry: '', vol_parameter_name: '', vol_quote_moneyness: '',
+      vol_strike: '', vol_tenor: '', node_selector_name: '', expiry_month: '',
     }));
     setBusy(true);
     setLastRequest({ method: 'POST', url: '/riskfactor/mappings/create', body: rows });
     setTimeout(() => {
       insertCurve(treeRef.current, create.cls, create.sub, create.typ, ccy, create.curve, rows);
-      rows.forEach(r => { rfByIdRef.current[r.rfId] = r; });
+      rows.forEach(r => { rfByIdRef.current[r.risk_factor_id] = r; });
       const p = create.cls, p2 = `${p}>${create.sub}`, p3 = `${p2}>${create.typ}`, p4 = `${p3}>${ccy}`;
       setExpanded(prev => ({ ...prev, [p]: true, [p2]: true, [p3]: true, [p4]: true }));
       setBusy(false);

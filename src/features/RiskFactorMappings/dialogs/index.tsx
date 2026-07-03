@@ -21,7 +21,7 @@ interface ArchiveCurveProps {
 export function ArchiveCurveDialog({ open, dialog, busy, onCancel, onConfirm }: ArchiveCurveProps) {
   const node = dialog?.curveNode;
   const rowCount = node?.rows?.length ?? 0;
-  const curveName = node?.curve?.curveNm ?? '';
+  const curveName = node?.curve?.curve_name ?? '';
 
   return (
     <Dialog open={open} onClose={busy ? undefined : onCancel} maxWidth="xs" fullWidth>
@@ -90,7 +90,7 @@ export function ArchiveRowDialog({ open, dialog, busy, onCancel, onConfirm }: Ar
               Archive Risk Factor
             </Typography>
             <Typography sx={{ fontSize: 14.5, color: '#687687', lineHeight: 1.55 }}>
-              Archive &ldquo;{rf?.rfNm}&rdquo; (RF ID {rf?.rfId})? This sets its valid_to timestamp;
+              Archive &ldquo;{rf?.risk_factor_name}&rdquo; (RF ID {rf?.risk_factor_id})? This sets its valid_to timestamp;
               the record is retained.
             </Typography>
           </Box>

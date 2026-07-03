@@ -40,7 +40,7 @@ export function buildFlatRows(input: BuildInput): RfmRowData[] {
       if (isCurve && archivedCurves.has(key)) continue;
 
       const isExpanded = !!expanded[key];
-      const liveRows = isCurve ? (node.rows ?? []).filter(r => !archivedRows.has(r.rfId)) : [];
+      const liveRows = isCurve ? (node.rows ?? []).filter(r => !archivedRows.has(r.risk_factor_id)) : [];
       const isEditing = isCurve && editingCurveId === key;
 
       const groupRow: GroupRowData = {
@@ -65,34 +65,34 @@ export function buildFlatRows(input: BuildInput): RfmRowData[] {
       if (isExpanded) {
         if (isCurve) {
           for (const r of liveRows) {
-            const e = edits[r.rfId];
+            const e = edits[r.risk_factor_id];
             const leafRow: LeafRowData = {
-              _id: `${key}>${r.rfId}`,
+              _id: `${key}>${r.risk_factor_id}`,
               _type: 'leaf',
               _depth: depth + 1,
               _curveKey: key,
               _isEditingCurve: isEditing,
-              rfId: r.rfId,
-              rfNm: r.rfNm,
-              clearingHouseCd: r.clearingHouseCd,
-              futureTenorCd: r.futureTenorCd,
-              termCd: r.termCd,
-              shockTypeCd: r.shockTypeCd,
-              tenorDimensionCd: r.tenorDimensionCd,
-              _curFutureTenor: cur(r.futureTenorCd, e, 'futureTenorCd'),
-              _curTermCd: cur(r.termCd, e, 'termCd'),
-              _curShockType: cur(r.shockTypeCd, e, 'shockTypeCd'),
-              _curTenorDim: cur(r.tenorDimensionCd, e, 'tenorDimensionCd'),
-              _dirtyFutureTenor: dirty(r.futureTenorCd, e, 'futureTenorCd'),
-              _dirtyTermCd: dirty(r.termCd, e, 'termCd'),
-              _dirtyShockType: dirty(r.shockTypeCd, e, 'shockTypeCd'),
-              _dirtyTenorDim: dirty(r.tenorDimensionCd, e, 'tenorDimensionCd'),
-              _canEditFutureTenor: editableFields.includes('futureTenorCd'),
-              _canEditTermCd: editableFields.includes('termCd'),
-              _canEditShockType: editableFields.includes('shockTypeCd'),
-              _canEditTenorDim: editableFields.includes('tenorDimensionCd'),
+              risk_factor_id: r.risk_factor_id,
+              risk_factor_name: r.risk_factor_name,
+              alt_clearing_house: r.alt_clearing_house,
+              future_tenor: r.future_tenor,
+              term_code: r.term_code,
+              shock_type: r.shock_type,
+              tenor_dimension: r.tenor_dimension,
+              _curFutureTenor: cur(r.future_tenor, e, 'future_tenor'),
+              _curTermCd: cur(r.term_code, e, 'term_code'),
+              _curShockType: cur(r.shock_type, e, 'shock_type'),
+              _curTenorDim: cur(r.tenor_dimension, e, 'tenor_dimension'),
+              _dirtyFutureTenor: dirty(r.future_tenor, e, 'future_tenor'),
+              _dirtyTermCd: dirty(r.term_code, e, 'term_code'),
+              _dirtyShockType: dirty(r.shock_type, e, 'shock_type'),
+              _dirtyTenorDim: dirty(r.tenor_dimension, e, 'tenor_dimension'),
+              _canEditFutureTenor: editableFields.includes('future_tenor'),
+              _canEditTermCd: editableFields.includes('term_code'),
+              _canEditShockType: editableFields.includes('shock_type'),
+              _canEditTenorDim: editableFields.includes('tenor_dimension'),
               _showRowArchive: enableRowArchive && !isEditing,
-              _rfData: rfById[r.rfId] ?? r,
+              _rfData: rfById[r.risk_factor_id] ?? r,
             };
             out.push(leafRow);
           }

@@ -1,31 +1,46 @@
 export type RfmLevel = 'class' | 'subclass' | 'type' | 'currency' | 'curve';
 
 export interface CurveInfo {
-  rfClassCd: string;
-  rfSubclassCd: string;
-  rfTypeCd: string;
-  currencyCd: string;
-  curveNm: string;
+  risk_factor_class: string;
+  rf_subclass: string;
+  rf_type: string;
+  currency: string;
+  curve_name: string;
 }
 
 export interface RfRow {
-  rfId: number;
-  rfNm: string;
-  altRfNm: string;
-  rfClassCd: string;
-  rfSubclassCd: string;
-  rfTypeCd: string;
-  currencyCd: string;
-  curveNm: string;
-  curveInstrumentTypeNm: string;
-  clearingHouseCd: string;
-  futureTenorCd: string;
-  termCd: string;
-  shockTypeCd: string;
-  tenorDimensionCd: string;
-  validFromTs: string;
-  validToTs: string | null;
-  sourceNm: string;
+  risk_factor_id: number;
+  risk_factor_name: string;
+  rf_alternative_name: string;
+  risk_factor_class: string;
+  rf_subclass: string;
+  rf_type: string;
+  currency: string;
+  curve_name: string;
+  instrument_type: string;
+  alt_clearing_house: string;
+  future_tenor: string;
+  term_code: string;
+  shock_type: string;
+  tenor_dimension: string;
+  valid_from: string;
+  valid_to: string | null;
+  source_name: string;
+  // additional API fields
+  base_curve: string;
+  basis_curve: string;
+  currency_pair: string;
+  curve_type: string;
+  effective_currency: string;
+  margin_type: string;
+  sequence_number: number;
+  vol_expiry: string;
+  vol_parameter_name: string;
+  vol_quote_moneyness: string;
+  vol_strike: string;
+  vol_tenor: string;
+  node_selector_name: string;
+  expiry_month: string;
 }
 
 export interface TreeNode {
@@ -63,14 +78,14 @@ export interface LeafRowData {
   _depth: number;
   _curveKey: string;
   _isEditingCurve: boolean;
-  // RF data
-  rfId: number;
-  rfNm: string;
-  clearingHouseCd: string;
-  futureTenorCd: string;
-  termCd: string;
-  shockTypeCd: string;
-  tenorDimensionCd: string;
+  // RF data (API field names)
+  risk_factor_id: number;
+  risk_factor_name: string;
+  alt_clearing_house: string;
+  future_tenor: string;
+  term_code: string;
+  shock_type: string;
+  tenor_dimension: string;
   // Current values (edit overrides original)
   _curFutureTenor: string;
   _curTermCd: string;
@@ -99,7 +114,7 @@ export interface RfmGridContext {
   onStartEdit: (curveKey: string) => void;
   onCancelEdit: () => void;
   onSave: () => void;
-  onEditCell: (rfId: number, field: string, value: string) => void;
+  onEditCell: (risk_factor_id: number, field: string, value: string) => void;
   onArchiveCurve: (key: string, node: TreeNode) => void;
   onArchiveRow: (rfData: RfRow) => void;
   dirtyTint: string;
@@ -135,7 +150,7 @@ export type EditablePreset =
   | 'Shock Type only';
 
 export const PRESET_FIELDS: Record<EditablePreset, string[]> = {
-  'All four (Future Tenor, Term, Shock, Tenor Dim)': ['futureTenorCd', 'termCd', 'shockTypeCd', 'tenorDimensionCd'],
-  'Term Code + Shock Type': ['termCd', 'shockTypeCd'],
-  'Shock Type only': ['shockTypeCd'],
+  'All four (Future Tenor, Term, Shock, Tenor Dim)': ['future_tenor', 'term_code', 'shock_type', 'tenor_dimension'],
+  'Term Code + Shock Type': ['term_code', 'shock_type'],
+  'Shock Type only': ['shock_type'],
 };

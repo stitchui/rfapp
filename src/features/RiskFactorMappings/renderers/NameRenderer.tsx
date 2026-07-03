@@ -20,7 +20,7 @@ export function NameRenderer(params: ICellRendererParams<RfmRowData, unknown, Rf
       <div style={{ display: 'flex', alignItems: 'center', gap: 9, paddingLeft: indent, height: '100%', paddingRight: 12, overflow: 'hidden' }}>
         <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#d8e2eb', flexShrink: 0 }} />
         <span style={{ fontFamily: "'Roboto Mono', monospace", fontSize: 12.5, color: '#486c94', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {leaf.rfNm}
+          {leaf.risk_factor_name}
         </span>
       </div>
     );
