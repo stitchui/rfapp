@@ -90,11 +90,11 @@ function ActionsRenderer(params: any) {
     if (isEditing) {
       return (
         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%', gap: 6, paddingRight: 8 }}>
-          <button disabled={ctx.busy} onClick={ctx.onSave} style={{ padding: '3px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', background: '#004d2c', color: '#fff', fontSize: 12, fontWeight: 600, opacity: ctx.busy ? 0.5 : 1 }}>
-            Save
-          </button>
           <button disabled={ctx.busy} onClick={ctx.onCancelEdit} style={{ padding: '3px 12px', borderRadius: 6, border: '1px solid #ccc', cursor: 'pointer', background: '#fff', color: '#333', fontSize: 12, opacity: ctx.busy ? 0.5 : 1 }}>
             Cancel
+          </button>
+          <button disabled={ctx.busy} onClick={ctx.onSave} style={{ padding: '3px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', background: '#004d2c', color: '#fff', fontSize: 12, fontWeight: 600, opacity: ctx.busy ? 0.5 : 1 }}>
+            Save
           </button>
         </div>
       );
