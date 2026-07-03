@@ -1,5 +1,6 @@
 import { useMemo, useRef, useCallback, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
 import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, GetDataPath, GridApi, GridReadyEvent, IGroupCellRendererParams } from 'ag-grid-community';
 import type { RfRow, RfmGridContext } from './types';
@@ -143,9 +144,10 @@ function ActionsRenderer(params: any) {
     <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%', paddingRight: 8 }}>
       <button
         onClick={() => ctx.onArchiveRow(data.risk_factor_id, data.risk_factor_name)}
-        style={{ background: 'none', border: '1px solid #e0e0e0', borderRadius: 5, cursor: 'pointer', padding: '3px 8px', fontSize: 12, color: '#888' }}
+        title="Archive"
+        style={{ background: 'none', border: '1px solid #e0e0e0', borderRadius: 5, cursor: 'pointer', padding: '3px 6px', display: 'flex', alignItems: 'center', color: '#888' }}
       >
-        Archive
+        <ArchiveOutlinedIcon style={{ fontSize: 16 }} />
       </button>
     </div>
   );
