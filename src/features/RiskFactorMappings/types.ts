@@ -33,3 +33,16 @@ export interface RfRow {
   node_selector_name: string;
   expiry_month: string;
 }
+
+export interface RfmGridContext {
+  editingCurveKey: string | null;
+  edits: Record<number, Partial<RfRow>>;
+  onStartEdit: (curveKey: string) => void;
+  onCancelEdit: () => void;
+  onSave: () => void;
+  onEditCell: (rfId: number, field: string, value: string) => void;
+  onArchiveCurve: (curveKey: string, rfIds: number[]) => void;
+  onArchiveRow: (rfId: number, name: string) => void;
+  busy: boolean;
+  dirtyTint: string;
+}
