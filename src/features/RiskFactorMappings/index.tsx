@@ -67,15 +67,16 @@ export default function RiskFactorMappings() {
   const onSave = useCallback(() => {
     if (!editingCurveKey) { onCancelEdit(); return; }
     const curveRows = allRows.filter(r => r._path.slice(0, 5).join('>') === editingCurveKey);
-    const payload = curveRows.map(orig => {
+    const payload = curveRows.reduce<object[]>((out, orig) => {
       const e = edits[orig.risk_factor_id];
       const dirty = e && Object.keys(e).some(f => String((e as any)[f]) !== String((orig as any)[f]));
-      if (!dirty) return { risk_factor_id: orig.risk_factor_id };
+      if (!dirty) return out;
       const { _path, ...rest } = { ...orig, ...e, risk_factor_id: orig.risk_factor_id };
       void _path;
-      return rest;
-    });
-    const dirtyCount = payload.filter(r => Object.keys(r).length > 1).length;
+      out.push(rest);
+      return out;
+    }, []);
+    const dirtyCount = payload.length;
     setBusy(true);
     setLastRequest({ method: 'POST', url: '/mappings/save', body: payload });
     setTimeout(() => {
