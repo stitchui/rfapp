@@ -60,4 +60,3 @@ Look at these files as the reference implementation:
 | `busy` | `boolean` | Disables buttons during API call |
 | `dialog` | `archiveCurve \| archiveRow \| null` | Controls confirmation dialog |
 
-> Adapt state management to the work codebase pattern (Redux, React Query, etc.)
