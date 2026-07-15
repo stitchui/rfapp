@@ -8,7 +8,7 @@ Use this prompt in VS Code Copilot to implement the Create workflow in the work 
 
 I need to implement a **Create Risk Factor** dialog for the Risk Factor Mappings feature. A working reference implementation is in this repo:
 
-**Reference repo:** https://github.com/jillella/rfapp
+**Reference repo:** https://github.com/stitchui/rfapp
 
 Look at this file as the reference implementation:
 - `src/features/RiskFactorMappings/CreateDialog.tsx` — the complete Create dialog

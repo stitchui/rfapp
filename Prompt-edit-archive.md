@@ -8,7 +8,7 @@ Use this prompt in VS Code Copilot to implement Edit and Archive functionality i
 
 I need to implement Edit and Archive functionality for a Risk Factor Mappings grid. The grid uses AG Grid Enterprise with `treeData + getDataPath + autoGroupColumnDef` for a 6-level hierarchy: `[risk_factor_class, rf_subclass, rf_type, currency, curve_name, risk_factor_name]`.
 
-**Reference repo:** https://github.com/jillella/rfapp
+**Reference repo:** https://github.com/stitchui/rfapp
 
 Look at these files as the reference implementation:
 - `src/features/RiskFactorMappings/RfmGrid.tsx` — grid setup, cell renderers, actions column
