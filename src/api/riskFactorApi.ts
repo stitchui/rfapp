@@ -59,7 +59,7 @@ export const getRiskFactorTimeseriesDropdowns = async (): Promise<typeof mockDro
 };
 
 export const getRiskFactorTimeseries = async (_params: {
-  rfClass?: string; subClass?: string; rfType?: string; currency?: string; curve?: string;
+  rfClass?: string; currency?: string; curve?: string;
 }): Promise<RfRow[]> => {
   await delay(800);
   return mockNiwaData.data.map((r, _i) => ({

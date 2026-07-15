@@ -9,17 +9,15 @@ import type { ColDef, GridApi, GridReadyEvent, SelectionChangedEvent } from 'ag-
 import type { RfRow } from './types';
 import { getRiskFactorTimeseriesDropdowns, getRiskFactorTimeseries, saveRiskFactorMappings } from '../../api/riskFactorApi';
 
-type DropdownTree = Record<string, Record<string, Record<string, Record<string, string[]>>>>;
+type DropdownTree = Record<string, { curve_name: string[]; currency: string[] }>;
 
 interface DropdownSelections {
   rfClass: string;
-  subClass: string;
-  type: string;
   currency: string;
   curve: string;
 }
 
-const EMPTY: DropdownSelections = { rfClass: '', subClass: '', type: '', currency: '', curve: '' };
+const EMPTY: DropdownSelections = { rfClass: '', currency: '', curve: '' };
 
 interface Props {
   open: boolean;
@@ -45,17 +43,11 @@ export function CreateDialog({ open, onClose, onCreated }: Props) {
 
   // Derived dropdown options
   const classOptions = Object.keys(tree);
-  const subClassOptions = sel.rfClass ? Object.keys((tree as any)[sel.rfClass] ?? {}) : [];
-  const typeOptions = sel.subClass ? Object.keys((tree as any)[sel.rfClass]?.[sel.subClass] ?? {}) : [];
-  const currencyOptions = sel.type ? Object.keys((tree as any)[sel.rfClass]?.[sel.subClass]?.[sel.type] ?? {}) : [];
-  const curveOptions: string[] = sel.currency
-    ? ((tree as any)[sel.rfClass]?.[sel.subClass]?.[sel.type]?.[sel.currency] ?? [])
-    : [];
+  const currencyOptions: string[] = sel.rfClass ? (tree[sel.rfClass]?.currency ?? []) : [];
+  const curveOptions: string[] = sel.rfClass ? (tree[sel.rfClass]?.curve_name ?? []) : [];
 
   const handleClassChange = (val: string) => setSel({ ...EMPTY, rfClass: val });
-  const handleSubClassChange = (val: string) => setSel(s => ({ ...s, subClass: val, type: '', currency: '', curve: '' }));
-  const handleTypeChange = (val: string) => setSel(s => ({ ...s, type: val, currency: '', curve: '' }));
-  const handleCurrencyChange = (val: string) => setSel(s => ({ ...s, currency: val, curve: '' }));
+  const handleCurrencyChange = (val: string) => setSel(s => ({ ...s, currency: val }));
   const handleCurveChange = (val: string) => setSel(s => ({ ...s, curve: val }));
 
   const handleFetch = async () => {
@@ -64,8 +56,7 @@ export function CreateDialog({ open, onClose, onCreated }: Props) {
     setNiwaRows([]);
     setSelectedRows([]);
     const rows = await getRiskFactorTimeseries({
-      rfClass: sel.rfClass, subClass: sel.subClass, rfType: sel.type,
-      currency: sel.currency, curve: sel.curve,
+      rfClass: sel.rfClass, currency: sel.currency, curve: sel.curve,
     });
     setNiwaRows(rows);
     setLoading(false);
@@ -145,10 +136,8 @@ export function CreateDialog({ open, onClose, onCreated }: Props) {
         {/* Dropdowns */}
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <SelectField label="Class" value={sel.rfClass} options={classOptions} onChange={handleClassChange} />
-          <SelectField label="Sub Class" value={sel.subClass} options={subClassOptions} onChange={handleSubClassChange} disabled={!sel.rfClass} />
-          <SelectField label="Type" value={sel.type} options={typeOptions} onChange={handleTypeChange} disabled={!sel.subClass} />
-          <SelectField label="Currency" value={sel.currency} options={currencyOptions} onChange={handleCurrencyChange} disabled={!sel.type} />
-          <SelectField label="Curve" value={sel.curve} options={curveOptions} onChange={handleCurveChange} disabled={!sel.currency} />
+          <SelectField label="Currency" value={sel.currency} options={currencyOptions} onChange={handleCurrencyChange} disabled={!sel.rfClass} />
+          <SelectField label="Curve" value={sel.curve} options={curveOptions} onChange={handleCurveChange} disabled={!sel.rfClass} />
           <Button
             variant="outlined"
             disabled={!sel.rfClass || loading}

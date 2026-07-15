@@ -1,82 +1,44 @@
 {
   "data": {
     "IR": {
-      "Base": {
-        "Exchange": {
-          "AED": ["Treasury"],
-          "AUD": ["Treasury"],
-          "USD": ["Treasury", "Zero rate OBS Treasury"],
-          "ZAR": ["Treasury"]
-        },
-        "Inflation": {
-          "AUD": ["CPI"],
-          "EUR": ["CPI"],
-          "GBP": ["CPI", "RPI"],
-          "USD": ["Treasury TIPS"]
-        },
-        "OTC": {
-          "AED": ["Swap", "Basis"],
-          "CZK": ["PRIBOR"],
-          "DKK": ["CIBOR"],
-          "EUR": ["EURIBOR"],
-          "GBP": ["SONIA"],
-          "JPY": ["TONAR"],
-          "USD": ["SOFR", "Swap"],
-          "ZAR": ["JIBAR"]
-        }
-      },
-      "Basis": {
-        "Index Basis": {
-          "AUD": ["AONIA vs BBR", "AUDOIS vs BASIS", "BBSY_3M Basis"],
-          "EUR": ["EONIA vs EURIBOR", "ESTER vs EURIBOR", "EURIBOR_EUREX vs EURIBOR", "EUROIS vs BASIS"],
-          "USD": ["BSBY vs LIBOR", "FED FUNDS SOFR Basis", "SOFR vs LIBOR", "USDOIS vs BASIS"]
-        },
-        "Tenor Basis": {
-          "AUD": ["BBR_1M vs BBR", "BBR_6M vs BBR", "BBSY_1M vs BBR", "BBSY_6M vs BBR"],
-          "EUR": ["EURIBOR_12M vs EURIBOR", "EURIBOR_1M vs EURIBOR", "EURIBOR_6M vs EURIBOR"],
-          "USD": ["LIBOR_12M vs LIBOR", "LIBOR_1M vs LIBOR", "LIBOR_6M vs LIBOR"]
-        },
-        "Xccy Basis": {
-          "AED": ["AED Xccy Basis"],
-          "EUR": ["EUR Xccy Basis"],
-          "USD": [],
-          "ZAR": ["ZAR Xccy Basis"]
-        }
-      },
-      "Vol": {
-        "Caplet": {
-          "AUD": ["AONIA"],
-          "EUR": ["EURIBOR"],
-          "USD": ["SOFR", "TERMSOFR"]
-        },
-        "Swaption": {
-          "AUD": ["AONIA"],
-          "EUR": ["EURIBOR"],
-          "USD": ["SOFR", "TERMSOFR"]
-        }
-      }
-    },
-    "Credit": {
-      "CDS": {
-        "Single Name": {
-          "USD": ["CDX IG", "CDX HY"],
-          "EUR": ["iTraxx Europe"]
-        }
-      }
+      "curve_name": [
+        "AED Xccy Basis",
+        "AEDOIS vs BASIS",
+        "AEIBOR_1M vs AEIBOR",
+        "AEIBOR_6M vs AEIBOR",
+        "AONIA",
+        "AONIA vs BBR",
+        "AUD Xccy Basis",
+        "AUDOIS vs BASIS",
+        "BA_1M vs BA",
+        "BA_6M vs BA",
+        "BBR_1M vs BBR",
+        "BBR_6M vs BBR",
+        "CAD Xccy Basis",
+        "CADOIS vs BASIS",
+        "CHF Xccy Basis",
+        "CHFOIS vs BASIS",
+        "DESTR vs CIBOR",
+        "DKK Xccy Basis",
+        "DKKOIS vs BASIS",
+        "EONIA vs EURIBOR",
+        "ESTER vs EURIBOR",
+        "FED FUNDS SOFR Basis",
+        "GBP Xccy Basis",
+        "GBPOIS vs BASIS",
+        "HIBOR_1M vs HIBOR",
+        "HKD Xccy Basis"
+      ],
+      "currency": []
     },
     "FX": {
-      "Spot": {
-        "G10": {
-          "EURUSD": ["Spot"],
-          "GBPUSD": ["Spot"],
-          "USDJPY": ["Spot"],
-          "AUDUSD": ["Spot"]
-        },
-        "EM": {
-          "USDBRL": ["Spot"],
-          "USDMXN": ["Spot"]
-        }
-      }
+      "curve_name": [],
+      "currency": [
+        "AED",
+        "AUD",
+        "BRL",
+        "ZAR"
+      ]
     }
   }
 }
