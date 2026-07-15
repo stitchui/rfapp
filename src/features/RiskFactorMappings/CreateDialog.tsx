@@ -1,0 +1,207 @@
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Box, Button, FormControl, InputLabel, Select, MenuItem,
+  Typography, CircularProgress,
+} from '@mui/material';
+import { AgGridReact } from 'ag-grid-react';
+import type { ColDef, GridApi, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
+import type { RfRow } from './types';
+import { getRiskFactorTimeseriesDropdowns, getRiskFactorTimeseries, saveRiskFactorMappings } from '../../api/riskFactorApi';
+
+type DropdownTree = Record<string, Record<string, Record<string, Record<string, string[]>>>>;
+
+interface DropdownSelections {
+  rfClass: string;
+  subClass: string;
+  type: string;
+  currency: string;
+  curve: string;
+}
+
+const EMPTY: DropdownSelections = { rfClass: '', subClass: '', type: '', currency: '', curve: '' };
+
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  onCreated: (rows: RfRow[]) => void;
+}
+
+export function CreateDialog({ open, onClose, onCreated }: Props) {
+  const [sel, setSel] = useState<DropdownSelections>(EMPTY);
+  const [nevaRows, setNevaRows] = useState<RfRow[]>([]);
+  const [selectedRows, setSelectedRows] = useState<RfRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [fetched, setFetched] = useState(false);
+  const [tree, setTree] = useState<DropdownTree>({});
+  const gridApiRef = useRef<GridApi | null>(null);
+
+  useEffect(() => {
+    if (open && Object.keys(tree).length === 0) {
+      getRiskFactorTimeseriesDropdowns().then(data => setTree(data as DropdownTree));
+    }
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Derived dropdown options
+  const classOptions = Object.keys(tree);
+  const subClassOptions = sel.rfClass ? Object.keys((tree as any)[sel.rfClass] ?? {}) : [];
+  const typeOptions = sel.subClass ? Object.keys((tree as any)[sel.rfClass]?.[sel.subClass] ?? {}) : [];
+  const currencyOptions = sel.type ? Object.keys((tree as any)[sel.rfClass]?.[sel.subClass]?.[sel.type] ?? {}) : [];
+  const curveOptions: string[] = sel.currency
+    ? ((tree as any)[sel.rfClass]?.[sel.subClass]?.[sel.type]?.[sel.currency] ?? [])
+    : [];
+
+  const handleClassChange = (val: string) => setSel({ ...EMPTY, rfClass: val });
+  const handleSubClassChange = (val: string) => setSel(s => ({ ...s, subClass: val, type: '', currency: '', curve: '' }));
+  const handleTypeChange = (val: string) => setSel(s => ({ ...s, type: val, currency: '', curve: '' }));
+  const handleCurrencyChange = (val: string) => setSel(s => ({ ...s, currency: val, curve: '' }));
+  const handleCurveChange = (val: string) => setSel(s => ({ ...s, curve: val }));
+
+  const handleFetch = async () => {
+    setLoading(true);
+    setFetched(false);
+    setNevaRows([]);
+    setSelectedRows([]);
+    const rows = await getRiskFactorTimeseries({
+      rfClass: sel.rfClass, subClass: sel.subClass, rfType: sel.type,
+      currency: sel.currency, curve: sel.curve,
+    });
+    setNevaRows(rows);
+    setLoading(false);
+    setFetched(true);
+  };
+
+  const handleSelectionChanged = useCallback((e: SelectionChangedEvent) => {
+    setSelectedRows(e.api.getSelectedRows());
+  }, []);
+
+  const handleCreate = async () => {
+    if (!selectedRows.length) return;
+    setBusy(true);
+    const payload = selectedRows.map(r => {
+      const { _path, ...rest } = r;
+      void _path;
+      return { ...rest, risk_factor_id: 0 };
+    });
+    await saveRiskFactorMappings(payload);
+    setBusy(false);
+    onCreated(selectedRows);
+    handleClose();
+  };
+
+  const handleClose = () => {
+    setSel(EMPTY);
+    setNevaRows([]);
+    setSelectedRows([]);
+    setFetched(false);
+    onClose();
+  };
+
+  const colDefs = useMemo<ColDef<RfRow>[]>(() => [
+    {
+      colId: 'checkbox',
+      checkboxSelection: true,
+      headerCheckboxSelection: true,
+      width: 48,
+      resizable: false,
+      suppressMovable: true,
+      suppressSizeToFit: true,
+    },
+    { field: 'risk_factor_name', headerName: 'Name', flex: 2, minWidth: 200, editable: true },
+    { field: 'alt_clearing_house', headerName: 'Clearing House', flex: 1, minWidth: 100, editable: true },
+    { field: 'future_tenor', headerName: 'Future Tenor', flex: 1, minWidth: 90, editable: true },
+    { field: 'term_code', headerName: 'Term Code', flex: 1, minWidth: 90, editable: true },
+    {
+      field: 'shock_type', headerName: 'Shock Type', flex: 1.2, minWidth: 100, editable: true,
+      cellEditor: 'agSelectCellEditor',
+      cellEditorParams: { values: ['Absolute', 'Relative', 'Log'] },
+    },
+    { field: 'tenor_dimension', headerName: 'Tenor Dim', flex: 1, minWidth: 90, editable: true },
+    { field: 'risk_factor_id', headerName: 'RF ID', flex: 0.8, minWidth: 70, valueFormatter: () => '0' },
+  ], []);
+
+  const handleGridReady = useCallback((e: GridReadyEvent) => {
+    gridApiRef.current = e.api;
+  }, []);
+
+  const SelectField = ({ label, value, options, onChange, disabled }: {
+    label: string; value: string; options: string[];
+    onChange: (v: string) => void; disabled?: boolean;
+  }) => (
+    <FormControl size="small" sx={{ minWidth: 140, flex: 1 }} disabled={disabled || options.length === 0}>
+      <InputLabel sx={{ fontSize: 13 }}>{label}</InputLabel>
+      <Select value={value} label={label} onChange={e => onChange(e.target.value as string)} sx={{ fontSize: 13 }}>
+        {options.map(o => <MenuItem key={o} value={o} sx={{ fontSize: 13 }}>{o}</MenuItem>)}
+      </Select>
+    </FormControl>
+  );
+
+  return (
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xl" PaperProps={{ sx: { borderRadius: 3, height: '85vh' } }}>
+      <DialogTitle sx={{ fontSize: 18, fontWeight: 600, pb: 1 }}>Create Risk Factor</DialogTitle>
+
+      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '12px !important' }}>
+        {/* Dropdowns */}
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <SelectField label="Class" value={sel.rfClass} options={classOptions} onChange={handleClassChange} />
+          <SelectField label="Sub Class" value={sel.subClass} options={subClassOptions} onChange={handleSubClassChange} disabled={!sel.rfClass} />
+          <SelectField label="Type" value={sel.type} options={typeOptions} onChange={handleTypeChange} disabled={!sel.subClass} />
+          <SelectField label="Currency" value={sel.currency} options={currencyOptions} onChange={handleCurrencyChange} disabled={!sel.type} />
+          <SelectField label="Curve" value={sel.curve} options={curveOptions} onChange={handleCurveChange} disabled={!sel.currency} />
+          <Button
+            variant="outlined"
+            disabled={!sel.rfClass || loading}
+            onClick={handleFetch}
+            startIcon={loading ? <CircularProgress size={14} /> : null}
+            sx={{ height: 40, textTransform: 'none', fontSize: 13, whiteSpace: 'nowrap', borderColor: '#004d2c', color: '#004d2c', '&:hover': { borderColor: '#0a5c38', bgcolor: '#f0f7f4' } }}
+          >
+            {loading ? 'Fetching…' : 'Fetch NEVA Data'}
+          </Button>
+        </Box>
+
+        {/* NEVA Grid */}
+        {fetched && (
+          <Box sx={{ flex: 1, minHeight: 0 }}>
+            {nevaRows.length === 0 ? (
+              <Typography sx={{ color: '#888', fontSize: 14, mt: 2 }}>No records found for the selected filters.</Typography>
+            ) : (
+              <Box sx={{ height: '100%' }}>
+                <Typography sx={{ fontSize: 12, color: '#666', mb: 1 }}>
+                  {nevaRows.length} records found · {selectedRows.length} selected
+                </Typography>
+                <div className="ag-theme-quartz" style={{ height: 'calc(100% - 28px)' }}>
+                <AgGridReact<RfRow>
+                  rowData={nevaRows}
+                  columnDefs={colDefs}
+                  rowSelection="multiple"
+                  suppressRowClickSelection
+                  onSelectionChanged={handleSelectionChanged}
+                  onGridReady={handleGridReady}
+                  getRowId={p => p.data.risk_factor_name}
+                  rowHeight={42}
+                  headerHeight={42}
+                  stopEditingWhenCellsLoseFocus
+                />
+                </div>
+              </Box>
+            )}
+          </Box>
+        )}
+      </DialogContent>
+
+      <DialogActions sx={{ px: 3, py: 2, borderTop: '1px solid #e0e0e0', gap: 1 }}>
+        <Button onClick={handleClose} disabled={busy} sx={{ textTransform: 'none' }}>Cancel</Button>
+        <Button
+          variant="contained"
+          disabled={selectedRows.length === 0 || busy}
+          onClick={handleCreate}
+          startIcon={busy ? <CircularProgress size={14} sx={{ color: '#fff' }} /> : null}
+          sx={{ textTransform: 'none', bgcolor: '#004d2c', '&:hover': { bgcolor: '#0a5c38' }, '&.Mui-disabled': { bgcolor: '#004d2c', color: '#fff', opacity: 0.4 } }}
+        >
+          {busy ? 'Creating…' : `Create${selectedRows.length > 0 ? ` (${selectedRows.length})` : ''}`}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}

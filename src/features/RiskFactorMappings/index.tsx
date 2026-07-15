@@ -8,30 +8,36 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import { AppHeader } from '../../components/AppHeader';
 import { RfmGrid } from './RfmGrid';
-import { buildLeafRows } from './mockData';
+import { CreateDialog } from './CreateDialog';
+import { getRiskFactorMappings, saveRiskFactorMappings, archiveRiskFactorMappings } from '../../api/riskFactorApi';
 import type { RfRow, RfmGridContext } from './types';
-
-// ---- Helpers ----
-const allRows = buildLeafRows();
-const initialById: Record<number, RfRow> = {};
-allRows.forEach(r => { initialById[r.risk_factor_id] = r; });
 
 type DialogState =
   | { type: 'archiveCurve'; curveKey: string; rfIds: number[] }
   | { type: 'archiveRow'; rfId: number; name: string };
 
 export default function RiskFactorMappings() {
-  const rfByIdRef = useRef<Record<number, RfRow>>({ ...initialById });
+  const allRowsRef = useRef<RfRow[]>([]);
+  const rfByIdRef = useRef<Record<number, RfRow>>({});
   const archivedCurvesRef = useRef<Set<string>>(new Set());
   const archivedRowsRef = useRef<Set<number>>(new Set());
 
   const [treeVersion, setTreeVersion] = useState(0);
+  const [createOpen, setCreateOpen] = useState(false);
   const [editingCurveKey, setEditingCurveKey] = useState<string | null>(null);
   const [edits, setEdits] = useState<Record<number, Partial<RfRow>>>({});
   const [busy, setBusy] = useState(false);
   const [dialog, setDialog] = useState<DialogState | null>(null);
   const [lastRequest, setLastRequest] = useState<{ method: string; url: string; body: unknown } | null>(null);
   const [snack, setSnack] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+
+  useEffect(() => {
+    getRiskFactorMappings().then(rows => {
+      allRowsRef.current = rows;
+      rows.forEach(r => { rfByIdRef.current[r.risk_factor_id] = r; });
+      setTreeVersion(v => v + 1);
+    });
+  }, []);
 
   const snackTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const showSnack = useCallback((msg: string, type: 'success' | 'error' = 'success') => {
@@ -42,7 +48,7 @@ export default function RiskFactorMappings() {
   useEffect(() => () => clearTimeout(snackTimerRef.current), []);
 
   // Filtered row data — excludes archived curves and rows
-  const rowData = useMemo(() => allRows.filter(r => {
+  const rowData = useMemo(() => allRowsRef.current.filter(r => {
     if (archivedRowsRef.current.has(r.risk_factor_id)) return false;
     const curveKey = r._path.slice(0, 5).join('>');
     if (archivedCurvesRef.current.has(curveKey)) return false;
@@ -64,9 +70,9 @@ export default function RiskFactorMappings() {
     setEdits(prev => ({ ...prev, [rfId]: { ...prev[rfId], [field]: value } }));
   }, []);
 
-  const onSave = useCallback(() => {
+  const onSave = useCallback(async () => {
     if (!editingCurveKey) { onCancelEdit(); return; }
-    const curveRows = allRows.filter(r => r._path.slice(0, 5).join('>') === editingCurveKey);
+    const curveRows = allRowsRef.current.filter(r => r._path.slice(0, 5).join('>') === editingCurveKey);
     const payload = curveRows.reduce<object[]>((out, orig) => {
       const e = edits[orig.risk_factor_id];
       const dirty = e && Object.keys(e).some(f => String((e as any)[f]) !== String((orig as any)[f]));
@@ -78,17 +84,16 @@ export default function RiskFactorMappings() {
     }, []);
     const dirtyCount = payload.length;
     setBusy(true);
-    setLastRequest({ method: 'POST', url: '/mappings/save', body: payload });
-    setTimeout(() => {
-      curveRows.forEach(orig => {
-        const e = edits[orig.risk_factor_id];
-        if (e) Object.assign(rfByIdRef.current[orig.risk_factor_id] ?? {}, e);
-      });
-      setBusy(false);
-      setEditingCurveKey(null);
-      setEdits({});
-      showSnack(`${dirtyCount} risk factor${dirtyCount > 1 ? 's' : ''} updated`);
-    }, 900);
+    setLastRequest({ method: 'POST', url: '/var/riskfactor/mappings/save', body: payload });
+    await saveRiskFactorMappings(payload);
+    curveRows.forEach(orig => {
+      const e = edits[orig.risk_factor_id];
+      if (e) Object.assign(rfByIdRef.current[orig.risk_factor_id] ?? {}, e);
+    });
+    setBusy(false);
+    setEditingCurveKey(null);
+    setEdits({});
+    showSnack(`${dirtyCount} risk factor${dirtyCount > 1 ? 's' : ''} updated`);
   }, [editingCurveKey, edits, onCancelEdit, showSnack]);
 
   // ---- Archive callbacks ----
@@ -100,36 +105,43 @@ export default function RiskFactorMappings() {
     setDialog({ type: 'archiveRow', rfId, name });
   }, []);
 
-  const confirmArchiveCurve = useCallback(() => {
+  const confirmArchiveCurve = useCallback(async () => {
     if (dialog?.type !== 'archiveCurve') return;
     const { curveKey, rfIds } = dialog;
     setBusy(true);
-    setLastRequest({ method: 'POST', url: '/mappings/archive', body: { risk_factor_ids: rfIds } });
-    setTimeout(() => {
-      archivedCurvesRef.current.add(curveKey);
-      if (editingCurveKey === curveKey) setEditingCurveKey(null);
-      setBusy(false);
-      setDialog(null);
-      setTreeVersion(v => v + 1);
-      showSnack(`Curve archived`);
-    }, 900);
+    setLastRequest({ method: 'POST', url: '/var/riskfactor/mappings/archive', body: { risk_factor_ids: rfIds } });
+    await archiveRiskFactorMappings({ risk_factor_ids: rfIds });
+    archivedCurvesRef.current.add(curveKey);
+    if (editingCurveKey === curveKey) setEditingCurveKey(null);
+    setBusy(false);
+    setDialog(null);
+    setTreeVersion(v => v + 1);
+    showSnack(`Curve archived`);
   }, [dialog, editingCurveKey, showSnack]);
 
-  const confirmArchiveRow = useCallback(() => {
+  const confirmArchiveRow = useCallback(async () => {
     if (dialog?.type !== 'archiveRow') return;
     const { rfId } = dialog;
     setBusy(true);
-    setLastRequest({ method: 'POST', url: '/mappings/archive', body: { risk_factor_ids: [rfId] } });
-    setTimeout(() => {
-      archivedRowsRef.current.add(rfId);
-      setBusy(false);
-      setDialog(null);
-      setTreeVersion(v => v + 1);
-      showSnack(`Risk factor ${rfId} archived`);
-    }, 800);
+    setLastRequest({ method: 'POST', url: '/var/riskfactor/mappings/archive', body: { risk_factor_ids: [rfId] } });
+    await archiveRiskFactorMappings({ risk_factor_ids: [rfId] });
+    archivedRowsRef.current.add(rfId);
+    setBusy(false);
+    setDialog(null);
+    setTreeVersion(v => v + 1);
+    showSnack(`Risk factor ${rfId} archived`);
   }, [dialog, showSnack]);
 
   const closeDialog = useCallback(() => { if (!busy) setDialog(null); }, [busy]);
+
+  const onCreated = useCallback((rows: RfRow[]) => {
+    rows.forEach(r => {
+      allRowsRef.current.push(r);
+      rfByIdRef.current[r.risk_factor_id] = r;
+    });
+    setTreeVersion(v => v + 1);
+    showSnack(`${rows.length} risk factor${rows.length > 1 ? 's' : ''} created`);
+  }, [showSnack]);
 
   // ---- Grid context ----
   const hasDirtyEdits = useMemo(() => {
@@ -168,6 +180,7 @@ export default function RiskFactorMappings() {
           <Button
             variant="contained"
             startIcon={<AddIcon sx={{ fontSize: 19 }} />}
+            onClick={() => setCreateOpen(true)}
             sx={{
               height: 40, px: 2, borderRadius: 999, fontSize: 14, fontWeight: 600,
               bgcolor: '#004d2c', textTransform: 'none',
@@ -202,6 +215,8 @@ export default function RiskFactorMappings() {
           </Box>
         )}
       </Box>
+
+      <CreateDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={onCreated} />
 
       {/* Archive Curve dialog */}
       <Dialog open={dialog?.type === 'archiveCurve'} onClose={closeDialog} maxWidth="xs" fullWidth>

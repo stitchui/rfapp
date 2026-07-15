@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "rfapp",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["vite", "--port", "3456"],
+      "runtimeExecutable": "/Users/jillella/.nvm/versions/node/v20.19.3/bin/node",
+      "runtimeArgs": ["/Users/jillella/claude-code/rfapp/node_modules/vite/bin/vite.js", "--port", "3456"],
       "port": 3456
     }
   ]
