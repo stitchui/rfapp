@@ -47,7 +47,10 @@ Look at this file as the reference implementation:
 Refer to `riskFactorApi.ts` (or `riskFactorApi.js` in the work codebase) for the exact function signatures and endpoint URLs. The three functions needed for this feature are:
 
 - `getRiskFactorTimeseriesDropdowns` — call on component mount to populate the cascading dropdowns
-- `getRiskFactorTimeseries` — call on "Fetch NIWA Data" button click
+- `getRiskFactorTimeseries` — call on "Fetch NIWA Data" button click with selected dropdown values:
+  ```ts
+  getRiskFactorTimeseries({ rfClass: sel.rfClass, currency: sel.currency, curve: sel.curve })
+  ```
 - `saveRiskFactorMappings` — call on "Create" button click with selected rows (each with `risk_factor_id: 0`, `_path` stripped)
 
 ---
