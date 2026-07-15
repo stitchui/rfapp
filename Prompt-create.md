@@ -49,7 +49,7 @@ Refer to `riskFactorApi.ts` (or `riskFactorApi.js` in the work codebase) for the
 - `getRiskFactorTimeseriesDropdowns` — call on component mount to populate the cascading dropdowns
 - `getRiskFactorTimeseries` — call on "Fetch NIWA Data" button click with selected dropdown values:
   ```ts
-  getRiskFactorTimeseries({ rfClass: sel.rfClass, currency: sel.currency, curve: sel.curve })
+  getRiskFactorTimeseries({ risk_factor_class: sel.risk_factor_class, currency: sel.currency, curve_name: sel.curve_name })
   ```
 - `saveRiskFactorMappings` — call on "Create" button click with selected rows (each with `risk_factor_id: 0`, `_path` stripped)
 
@@ -60,14 +60,14 @@ Refer to `riskFactorApi.ts` (or `riskFactorApi.js` in the work codebase) for the
 ```ts
 // tree shape: { IR: { curve_name: [...], currency: [] }, FX: { curve_name: [], currency: [...] } }
 const classOptions = Object.keys(tree);
-const currencyOptions = sel.rfClass ? (tree[sel.rfClass]?.currency ?? []) : [];
-const curveOptions = sel.rfClass ? (tree[sel.rfClass]?.curve_name ?? []) : [];
+const currencyOptions = sel.risk_factor_class ? (tree[sel.risk_factor_class]?.currency ?? []) : [];
+const curveOptions = sel.risk_factor_class ? (tree[sel.risk_factor_class]?.curve_name ?? []) : [];
 // Currency/Curve dropdowns are disabled automatically when their options array is empty
 ```
 
 Class change resets all downstream selections:
 ```ts
-const handleClassChange = (val) => setSel({ ...EMPTY, rfClass: val });
+const handleClassChange = (val) => setSel({ ...EMPTY, risk_factor_class: val });
 ```
 
 ---
@@ -106,7 +106,7 @@ const onCreated = useCallback((rows: RfRow[]) => {
 | State | Type | Purpose |
 |---|---|---|
 | `tree` | `DropdownTree` | Nested options from API, fetched on mount |
-| `sel` | `DropdownSelections` | Current dropdown values (`rfClass, currency, curve`) |
+| `sel` | `DropdownSelections` | Current dropdown values (`risk_factor_class, currency, curve_name`) |
 | `niwaRows` | `RfRow[]` | Rows returned from NIWA fetch |
 | `selectedRows` | `RfRow[]` | Rows checked in AG Grid |
 | `loading` | `boolean` | Fetch NIWA Data in progress |

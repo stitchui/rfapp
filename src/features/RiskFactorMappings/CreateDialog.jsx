@@ -7,7 +7,7 @@ import {
 import { AgGridReact } from 'ag-grid-react';
 import { getRiskFactorTimeseriesDropdowns, getRiskFactorTimeseries, saveRiskFactorMappings } from '../../api/riskFactorApi';
 
-const EMPTY = { rfClass: '', currency: '', curve: '' };
+const EMPTY = { risk_factor_class: '', currency: '', curve_name: '' };
 
 export function CreateDialog({ open, onClose, onCreated }) {
   const [sel, setSel] = useState(EMPTY);
@@ -26,12 +26,12 @@ export function CreateDialog({ open, onClose, onCreated }) {
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const classOptions = Object.keys(tree);
-  const currencyOptions = sel.rfClass ? (tree[sel.rfClass]?.currency ?? []) : [];
-  const curveOptions = sel.rfClass ? (tree[sel.rfClass]?.curve_name ?? []) : [];
+  const currencyOptions = sel.risk_factor_class ? (tree[sel.risk_factor_class]?.currency ?? []) : [];
+  const curveOptions = sel.risk_factor_class ? (tree[sel.risk_factor_class]?.curve_name ?? []) : [];
 
-  const handleClassChange = (val) => setSel({ ...EMPTY, rfClass: val });
+  const handleClassChange = (val) => setSel({ ...EMPTY, risk_factor_class: val });
   const handleCurrencyChange = (val) => setSel(s => ({ ...s, currency: val }));
-  const handleCurveChange = (val) => setSel(s => ({ ...s, curve: val }));
+  const handleCurveChange = (val) => setSel(s => ({ ...s, curve_name: val }));
 
   const handleFetch = async () => {
     setLoading(true);
@@ -39,7 +39,7 @@ export function CreateDialog({ open, onClose, onCreated }) {
     setNiwaRows([]);
     setSelectedRows([]);
     const rows = await getRiskFactorTimeseries({
-      rfClass: sel.rfClass, currency: sel.currency, curve: sel.curve,
+      risk_factor_class: sel.risk_factor_class, currency: sel.currency, curve_name: sel.curve_name,
     });
     setNiwaRows(rows);
     setLoading(false);
@@ -115,12 +115,12 @@ export function CreateDialog({ open, onClose, onCreated }) {
 
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '12px !important' }}>
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          <SelectField label="Class" value={sel.rfClass} options={classOptions} onChange={handleClassChange} />
-          <SelectField label="Currency" value={sel.currency} options={currencyOptions} onChange={handleCurrencyChange} disabled={!sel.rfClass} />
-          <SelectField label="Curve" value={sel.curve} options={curveOptions} onChange={handleCurveChange} disabled={!sel.rfClass} />
+          <SelectField label="Class" value={sel.risk_factor_class} options={classOptions} onChange={handleClassChange} />
+          <SelectField label="Currency" value={sel.currency} options={currencyOptions} onChange={handleCurrencyChange} disabled={!sel.risk_factor_class} />
+          <SelectField label="Curve" value={sel.curve_name} options={curveOptions} onChange={handleCurveChange} disabled={!sel.risk_factor_class} />
           <Button
             variant="outlined"
-            disabled={!sel.rfClass || loading}
+            disabled={!sel.risk_factor_class || loading}
             onClick={handleFetch}
             startIcon={loading ? <CircularProgress size={14} /> : null}
             sx={{ height: 40, textTransform: 'none', fontSize: 13, whiteSpace: 'nowrap', borderColor: '#004d2c', color: '#004d2c', '&:hover': { borderColor: '#0a5c38', bgcolor: '#f0f7f4' } }}

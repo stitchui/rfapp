@@ -54,7 +54,7 @@ export const getRiskFactorTimeseriesDropdowns = async () => {
   return mockDropdownData.data;
 };
 
-export const getRiskFactorTimeseries = async (_params) => {
+export const getRiskFactorTimeseries = async ({ risk_factor_class, currency, curve_name } = {}) => {
   await delay(800);
   return mockNiwaData.data.map(r => ({
     _path: [r.risk_factor_class, r.rf_subclass, r.rf_type, r.currency, r.curve_name, r.risk_factor_name],
