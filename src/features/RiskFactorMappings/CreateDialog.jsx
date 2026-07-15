@@ -11,7 +11,7 @@ const EMPTY = { risk_factor_class: '', currency: '', curve_name: '' };
 
 export function CreateDialog({ open, onClose, onCreated }) {
   const [sel, setSel] = useState(EMPTY);
-  const [niwaRows, setNiwaRows] = useState([]);
+  const [cloneRows, setCloneRows] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -36,12 +36,12 @@ export function CreateDialog({ open, onClose, onCreated }) {
   const handleFetch = async () => {
     setLoading(true);
     setFetched(false);
-    setNiwaRows([]);
+    setCloneRows([]);
     setSelectedRows([]);
     const rows = await getRiskFactorTimeseries({
       risk_factor_class: sel.risk_factor_class, currency: sel.currency, curve_name: sel.curve_name,
     });
-    setNiwaRows(rows);
+    setCloneRows(rows);
     setLoading(false);
     setFetched(true);
   };
@@ -68,7 +68,7 @@ export function CreateDialog({ open, onClose, onCreated }) {
 
   const handleClose = () => {
     setSel(EMPTY);
-    setNiwaRows([]);
+    setCloneRows([]);
     setSelectedRows([]);
     setFetched(false);
     onClose();
@@ -131,22 +131,22 @@ export function CreateDialog({ open, onClose, onCreated }) {
             startIcon={loading ? <CircularProgress size={14} /> : null}
             sx={{ height: 40, textTransform: 'none', fontSize: 13, whiteSpace: 'nowrap', borderColor: '#004d2c', color: '#004d2c', '&:hover': { borderColor: '#0a5c38', bgcolor: '#f0f7f4' } }}
           >
-            {loading ? 'Fetching…' : 'Fetch NIWA Data'}
+            {loading ? 'Cloning…' : 'Clone'}
           </Button>
         </Box>
 
         {fetched && (
           <Box sx={{ flex: 1, minHeight: 0 }}>
-            {niwaRows.length === 0 ? (
+            {cloneRows.length === 0 ? (
               <Typography sx={{ color: '#888', fontSize: 14, mt: 2 }}>No records found for the selected filters.</Typography>
             ) : (
               <Box sx={{ height: '100%' }}>
                 <Typography sx={{ fontSize: 12, color: '#666', mb: 1 }}>
-                  {niwaRows.length} records found · {selectedRows.length} selected
+                  {cloneRows.length} records found · {selectedRows.length} selected
                 </Typography>
                 <div className="ag-theme-quartz" style={{ height: 'calc(100% - 28px)' }}>
                   <AgGridReact
-                    rowData={niwaRows}
+                    rowData={cloneRows}
                     columnDefs={colDefs}
                     rowSelection="multiple"
                     suppressRowClickSelection

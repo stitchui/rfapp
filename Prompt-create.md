@@ -26,7 +26,7 @@ Look at this file as the reference implementation:
    - Fetch this on component mount (not on modal open) so options are ready instantly
    - The dropdown data shape: `{ IR: { curve_name: [...], currency: [] }, FX: { curve_name: [], currency: [...] } }`
    - Currency/Curve disable automatically when their array is empty (e.g. IR has no currency, FX has no curve)
-3. **Fetch NIWA Data** button — enabled as soon as Class is selected
+3. **Clone** button — enabled as soon as Class is selected
    - Calls `POST /var/riskfactor/timeseries` with selected filter values
    - Shows AG Grid with results (flat list, not tree)
 4. **AG Grid** inside the modal:
@@ -47,7 +47,7 @@ Look at this file as the reference implementation:
 Refer to `riskFactorApi.ts` (or `riskFactorApi.js` in the work codebase) for the exact function signatures and endpoint URLs. The three functions needed for this feature are:
 
 - `getRiskFactorTimeseriesDropdowns` — call on component mount to populate the cascading dropdowns
-- `getRiskFactorTimeseries` — call on "Fetch NIWA Data" button click with selected dropdown values:
+- `getRiskFactorTimeseries` — call on "Clone" button click with selected dropdown values:
   ```ts
   getRiskFactorTimeseries({ risk_factor_class: sel.risk_factor_class, currency: sel.currency, curve_name: sel.curve_name })
   ```
@@ -107,11 +107,11 @@ const onCreated = useCallback((rows: RfRow[]) => {
 |---|---|---|
 | `tree` | `DropdownTree` | Nested options from API, fetched on mount |
 | `sel` | `DropdownSelections` | Current dropdown values (`risk_factor_class, currency, curve_name`) |
-| `niwaRows` | `RfRow[]` | Rows returned from NIWA fetch |
+| `cloneRows` | `RfRow[]` | Rows returned from clone |
 | `selectedRows` | `RfRow[]` | Rows checked in AG Grid |
-| `loading` | `boolean` | Fetch NIWA Data in progress |
+| `loading` | `boolean` | Clone in progress |
 | `busy` | `boolean` | Create in progress |
-| `fetched` | `boolean` | Whether NIWA grid should be shown |
+| `fetched` | `boolean` | Whether clone grid should be shown |
 
 ---
 
@@ -120,7 +120,7 @@ const onCreated = useCallback((rows: RfRow[]) => {
 - Use MUI components (`Dialog`, `DialogTitle`, `DialogContent`, `DialogActions`, `FormControl`, `Select`, `MenuItem`, `Button`, `CircularProgress`) with `sx` props — no inline `style={{}}`
 - Use `useState` and `useRef` only — no Redux or React Query
 - Adapt API function calls to match the work codebase's `riskFactorApi` (axios-based)
-- The NIWA AG Grid inside the modal is a **flat list** (not treeData) — no `getDataPath`, no `autoGroupColumnDef`
-- `getRowId` on the NIWA grid: use `risk_factor_name` (all rows have `risk_factor_id: 0` so it can't be used as a key)
+- The clone AG Grid inside the modal is a **flat list** (not treeData) — no `getDataPath`, no `autoGroupColumnDef`
+- `getRowId` on the clone grid: use `risk_factor_name` (all rows have `risk_factor_id: 0` so it can't be used as a key)
 - All columns use AG Grid's native `editable: true`; `shock_type` uses `agSelectCellEditor`
 - On Create, read rows from `gridApi.getSelectedRows()` (not from state) to capture any cell edits made after row selection
