@@ -24,7 +24,7 @@ Look at this file as the reference implementation:
    - Each dropdown only enables when its parent has a value
    - Options are driven by a nested JSON tree from `GET /var/riskfactor/timeseries/dropdowns`
    - Fetch this on component mount (not on modal open) so options are ready instantly
-3. **Fetch NEVA Data** button — enabled as soon as Class is selected
+3. **Fetch NIWA Data** button — enabled as soon as Class is selected
    - Calls `POST /var/riskfactor/timeseries` with selected filter values
    - Shows AG Grid with results (flat list, not tree)
 4. **AG Grid** inside the modal:
@@ -45,7 +45,7 @@ Look at this file as the reference implementation:
 Refer to `riskFactorApi.ts` (or `riskFactorApi.js` in the work codebase) for the exact function signatures and endpoint URLs. The three functions needed for this feature are:
 
 - `getRiskFactorTimeseriesDropdowns` — call on component mount to populate the cascading dropdowns
-- `getRiskFactorTimeseries` — call on "Fetch NEVA Data" button click
+- `getRiskFactorTimeseries` — call on "Fetch NIWA Data" button click
 - `saveRiskFactorMappings` — call on "Create" button click with selected rows (each with `risk_factor_id: 0`, `_path` stripped)
 
 ---
@@ -104,11 +104,11 @@ const onCreated = useCallback((rows: RfRow[]) => {
 |---|---|---|
 | `tree` | `DropdownTree` | Nested options from API, fetched on mount |
 | `sel` | `DropdownSelections` | Current dropdown values (`rfClass, subClass, type, currency, curve`) |
-| `nevaRows` | `RfRow[]` | Rows returned from NEVA fetch |
+| `niwaRows` | `RfRow[]` | Rows returned from NIWA fetch |
 | `selectedRows` | `RfRow[]` | Rows checked in AG Grid |
-| `loading` | `boolean` | Fetch NEVA Data in progress |
+| `loading` | `boolean` | Fetch NIWA Data in progress |
 | `busy` | `boolean` | Create in progress |
-| `fetched` | `boolean` | Whether NEVA grid should be shown |
+| `fetched` | `boolean` | Whether NIWA grid should be shown |
 
 ---
 
@@ -117,5 +117,5 @@ const onCreated = useCallback((rows: RfRow[]) => {
 - Use MUI components (`Dialog`, `DialogTitle`, `DialogContent`, `DialogActions`, `FormControl`, `Select`, `MenuItem`, `Button`, `CircularProgress`) with `sx` props — no inline `style={{}}`
 - Use `useState` and `useRef` only — no Redux or React Query
 - Adapt API function calls to match the work codebase's `riskFactorApi` (axios-based)
-- The NEVA AG Grid inside the modal is a **flat list** (not treeData) — no `getDataPath`, no `autoGroupColumnDef`
-- `getRowId` on the NEVA grid: use `risk_factor_name` (all rows have `risk_factor_id: 0` so it can't be used as a key)
+- The NIWA AG Grid inside the modal is a **flat list** (not treeData) — no `getDataPath`, no `autoGroupColumnDef`
+- `getRowId` on the NIWA grid: use `risk_factor_name` (all rows have `risk_factor_id: 0` so it can't be used as a key)

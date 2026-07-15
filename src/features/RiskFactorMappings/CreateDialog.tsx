@@ -29,7 +29,7 @@ interface Props {
 
 export function CreateDialog({ open, onClose, onCreated }: Props) {
   const [sel, setSel] = useState<DropdownSelections>(EMPTY);
-  const [nevaRows, setNevaRows] = useState<RfRow[]>([]);
+  const [niwaRows, setNiwaRows] = useState<RfRow[]>([]);
   const [selectedRows, setSelectedRows] = useState<RfRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -61,13 +61,13 @@ export function CreateDialog({ open, onClose, onCreated }: Props) {
   const handleFetch = async () => {
     setLoading(true);
     setFetched(false);
-    setNevaRows([]);
+    setNiwaRows([]);
     setSelectedRows([]);
     const rows = await getRiskFactorTimeseries({
       rfClass: sel.rfClass, subClass: sel.subClass, rfType: sel.type,
       currency: sel.currency, curve: sel.curve,
     });
-    setNevaRows(rows);
+    setNiwaRows(rows);
     setLoading(false);
     setFetched(true);
   };
@@ -92,7 +92,7 @@ export function CreateDialog({ open, onClose, onCreated }: Props) {
 
   const handleClose = () => {
     setSel(EMPTY);
-    setNevaRows([]);
+    setNiwaRows([]);
     setSelectedRows([]);
     setFetched(false);
     onClose();
@@ -156,23 +156,23 @@ export function CreateDialog({ open, onClose, onCreated }: Props) {
             startIcon={loading ? <CircularProgress size={14} /> : null}
             sx={{ height: 40, textTransform: 'none', fontSize: 13, whiteSpace: 'nowrap', borderColor: '#004d2c', color: '#004d2c', '&:hover': { borderColor: '#0a5c38', bgcolor: '#f0f7f4' } }}
           >
-            {loading ? 'Fetching…' : 'Fetch NEVA Data'}
+            {loading ? 'Fetching…' : 'Fetch NIWA Data'}
           </Button>
         </Box>
 
-        {/* NEVA Grid */}
+        {/* NIWA Grid */}
         {fetched && (
           <Box sx={{ flex: 1, minHeight: 0 }}>
-            {nevaRows.length === 0 ? (
+            {niwaRows.length === 0 ? (
               <Typography sx={{ color: '#888', fontSize: 14, mt: 2 }}>No records found for the selected filters.</Typography>
             ) : (
               <Box sx={{ height: '100%' }}>
                 <Typography sx={{ fontSize: 12, color: '#666', mb: 1 }}>
-                  {nevaRows.length} records found · {selectedRows.length} selected
+                  {niwaRows.length} records found · {selectedRows.length} selected
                 </Typography>
                 <div className="ag-theme-quartz" style={{ height: 'calc(100% - 28px)' }}>
                 <AgGridReact<RfRow>
-                  rowData={nevaRows}
+                  rowData={niwaRows}
                   columnDefs={colDefs}
                   rowSelection="multiple"
                   suppressRowClickSelection

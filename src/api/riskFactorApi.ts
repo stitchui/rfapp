@@ -1,7 +1,7 @@
 import type { RfRow } from '../features/RiskFactorMappings/types';
 import mockRfData from './mockRfData.json';
 import mockDropdownData from './mockDropdownData.json';
-import mockNevaData from './mockNevaData.json';
+import mockNiwaData from './mockNiwaData.json';
 
 type ApiRow = typeof mockRfData.data[0];
 
@@ -62,7 +62,7 @@ export const getRiskFactorTimeseries = async (_params: {
   rfClass?: string; subClass?: string; rfType?: string; currency?: string; curve?: string;
 }): Promise<RfRow[]> => {
   await delay(800);
-  return mockNevaData.data.map((r, _i) => ({
+  return mockNiwaData.data.map((r, _i) => ({
     _path: [r.risk_factor_class, r.rf_subclass, r.rf_type, r.currency, r.curve_name, r.risk_factor_name],
     risk_factor_id: 0,
     risk_factor_name: r.risk_factor_name,
