@@ -1,11 +1,8 @@
-import type { RfRow } from '../features/RiskFactorMappings/types';
 import mockRfData from './mockRfData.json';
 import mockDropdownData from './mockDropdownData.json';
 import mockNiwaData from './mockNiwaData.json';
 
-type ApiRow = typeof mockRfData.data[0];
-
-function mapApiRow(row: ApiRow): RfRow {
+function mapApiRow(row) {
   return {
     _path: [row.risk_factor_class, row.rf_subclass, row.rf_type, row.currency, row.curve_name, row.risk_factor_name],
     risk_factor_id: row.risk_factor_id,
@@ -48,21 +45,18 @@ function mapApiRow(row: ApiRow): RfRow {
 //     return req.data;
 //   };
 
-export const getRiskFactorMappings = async (): Promise<RfRow[]> => {
+export const getRiskFactorMappings = async () => {
   await delay(600);
   return mockRfData.data.map(mapApiRow);
 };
 
-export const getRiskFactorTimeseriesDropdowns = async (): Promise<typeof mockDropdownData.data> => {
-  await delay(400);
+export const getRiskFactorTimeseriesDropdowns = async () => {
   return mockDropdownData.data;
 };
 
-export const getRiskFactorTimeseries = async (_params: {
-  rfClass?: string; currency?: string; curve?: string;
-}): Promise<RfRow[]> => {
+export const getRiskFactorTimeseries = async (_params) => {
   await delay(800);
-  return mockNiwaData.data.map((r, _i) => ({
+  return mockNiwaData.data.map(r => ({
     _path: [r.risk_factor_class, r.rf_subclass, r.rf_type, r.currency, r.curve_name, r.risk_factor_name],
     risk_factor_id: 0,
     risk_factor_name: r.risk_factor_name,
@@ -99,15 +93,15 @@ export const getRiskFactorTimeseries = async (_params: {
 };
 
 // axiosInstance.post('/var/riskfactor/mappings/save', riskFactors)
-export const saveRiskFactorMappings = async (riskFactors: object[]): Promise<void> => {
+export const saveRiskFactorMappings = async (riskFactors) => {
   await delay(900);
   console.log('POST /var/riskfactor/mappings/save', riskFactors);
 };
 
 // axiosInstance.post('/var/riskfactor/mappings/archive', { risk_factor_ids })
-export const archiveRiskFactorMappings = async ({ risk_factor_ids }: { risk_factor_ids: number[] }): Promise<void> => {
+export const archiveRiskFactorMappings = async ({ risk_factor_ids }) => {
   await delay(800);
   console.log('POST /var/riskfactor/mappings/archive', { risk_factor_ids });
 };
 
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+const delay = (ms) => new Promise(res => setTimeout(res, ms));

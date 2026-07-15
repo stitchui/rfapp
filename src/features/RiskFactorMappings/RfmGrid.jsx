@@ -3,31 +3,20 @@ import { createPortal } from 'react-dom';
 import { Box, Button, IconButton, Paper, MenuItem } from '@mui/material';
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
 import { AgGridReact } from 'ag-grid-react';
-import type { ColDef, GetDataPath, GridApi, GridReadyEvent, IGroupCellRendererParams } from 'ag-grid-community';
-import type { RfRow, RfmGridContext } from './types';
 
 // ---- Curve-level inner renderer (label only; all actions are in Actions column) ----
-function CurveInnerRenderer(params: any) {
+function CurveInnerRenderer(params) {
   if (!params.node?.group) return null;
   return <span>{params.value}</span>;
 }
 
 // ---- Editable cell renderer for leaf rows ----
-interface EditableCellProps {
-  value: any;
-  data: RfRow;
-  context: RfmGridContext;
-  field: string;
-  type?: 'text' | 'select';
-  options?: string[];
-}
-
-function EditableCell({ value, data, context: ctx, field, type = 'text', options }: EditableCellProps) {
+function EditableCell({ value, data, context: ctx, field, type = 'text', options }) {
   if (!data) return null;
   const curveKey = data._path.slice(0, 5).join('>');
   const isEditing = ctx.editingCurveKey === curveKey;
-  const currentValue = (ctx.edits[data.risk_factor_id]?.[field as keyof RfRow] as string) ?? String(value ?? '');
-  const orig = String((data as any)[field] ?? '');
+  const currentValue = (ctx.edits[data.risk_factor_id]?.[field]) ?? String(value ?? '');
+  const orig = String(data[field] ?? '');
   const isDirty = isEditing && currentValue !== orig;
 
   if (!isEditing) return <span>{String(value ?? '')}</span>;
@@ -50,7 +39,7 @@ function EditableCell({ value, data, context: ctx, field, type = 'text', options
       <Box
         component="select"
         value={currentValue}
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => ctx.onEditCell(data.risk_factor_id, field, e.target.value)}
+        onChange={e => ctx.onEditCell(data.risk_factor_id, field, e.target.value)}
         sx={inputSx}
       >
         {options.map(o => <option key={o} value={o}>{o}</option>)}
@@ -62,29 +51,29 @@ function EditableCell({ value, data, context: ctx, field, type = 'text', options
     <Box
       component="input"
       value={currentValue}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => ctx.onEditCell(data.risk_factor_id, field, e.target.value)}
+      onChange={e => ctx.onEditCell(data.risk_factor_id, field, e.target.value)}
       sx={inputSx}
     />
   );
 }
 
-function makeEditableRenderer(field: string, type: 'text' | 'select' = 'text', options?: string[]) {
-  return (params: any) => (
+function makeEditableRenderer(field, type = 'text', options) {
+  return (params) => (
     <EditableCell value={params.value} data={params.data} context={params.context} field={field} type={type} options={options} />
   );
 }
 
 // ---- Actions column: ⋮ menu for curve rows, Archive for leaf rows ----
-function ActionsRenderer(params: any) {
-  const [menuAnchor, setMenuAnchor] = useState<{ top: number; left: number } | null>(null);
-  const btnRef = useRef<HTMLButtonElement>(null);
-  const ctx = params.context as RfmGridContext;
+function ActionsRenderer(params) {
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const btnRef = useRef(null);
+  const ctx = params.context;
   const node = params.node;
 
   useEffect(() => {
     if (!menuAnchor) return;
-    const handler = (e: MouseEvent) => {
-      if (!btnRef.current?.contains(e.target as Node)) setMenuAnchor(null);
+    const handler = (e) => {
+      if (!btnRef.current?.contains(e.target)) setMenuAnchor(null);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -120,11 +109,11 @@ function ActionsRenderer(params: any) {
       );
     }
 
-    const rfIds: number[] = (node.allLeafChildren ?? [])
-      .map((n: any) => n.data?.risk_factor_id)
-      .filter((id: any) => id != null);
+    const rfIds = (node.allLeafChildren ?? [])
+      .map(n => n.data?.risk_factor_id)
+      .filter(id => id != null);
 
-    const openMenu = (e: React.MouseEvent) => {
+    const openMenu = (e) => {
       e.stopPropagation();
       const rect = btnRef.current?.getBoundingClientRect();
       if (rect) setMenuAnchor({ top: rect.bottom + 4, left: rect.right - 148 });
@@ -155,7 +144,7 @@ function ActionsRenderer(params: any) {
   }
 
   // Leaf row → Archive icon button
-  const data = params.data as RfRow;
+  const data = params.data;
   if (!data || node.group) return null;
   const curveKey = data._path.slice(0, 5).join('>');
   if (ctx.editingCurveKey === curveKey) return null;
@@ -175,16 +164,10 @@ function ActionsRenderer(params: any) {
 }
 
 // ---- Grid ----
-interface RfmGridProps {
-  rowData: RfRow[];
-  context: RfmGridContext;
-  onGridReady?: (api: GridApi) => void;
-}
+export function RfmGrid({ rowData, context, onGridReady }) {
+  const gridApiRef = useRef(null);
 
-export function RfmGrid({ rowData, context, onGridReady }: RfmGridProps) {
-  const gridApiRef = useRef<GridApi | null>(null);
-
-  const autoGroupColumnDef = useMemo<ColDef<RfRow>>(() => ({
+  const autoGroupColumnDef = useMemo(() => ({
     headerName: 'Grouped',
     minWidth: 225,
     resizable: true,
@@ -197,76 +180,15 @@ export function RfmGrid({ rowData, context, onGridReady }: RfmGridProps) {
     },
   }), []);
 
-  const colDefs = useMemo<ColDef<RfRow>[]>(() => [
-    {
-      colId: 'name',
-      field: 'risk_factor_name',
-      headerName: 'Name',
-      flex: 2,
-      minWidth: 200,
-      suppressMovable: true,
-    },
-    {
-      colId: 'clearingHouse',
-      field: 'alt_clearing_house',
-      headerName: 'Clearing House',
-      flex: 1.3,
-      minWidth: 100,
-      suppressMovable: true,
-    },
-    {
-      colId: 'futureTenor',
-      field: 'future_tenor',
-      headerName: 'Future Tenor',
-      flex: 1,
-      minWidth: 90,
-      suppressMovable: true,
-      cellRenderer: makeEditableRenderer('future_tenor'),
-    },
-    {
-      colId: 'termCode',
-      field: 'term_code',
-      headerName: 'Term Code',
-      flex: 1,
-      minWidth: 90,
-      suppressMovable: true,
-      cellRenderer: makeEditableRenderer('term_code'),
-    },
-    {
-      colId: 'shockType',
-      field: 'shock_type',
-      headerName: 'Shock Type',
-      flex: 1.2,
-      minWidth: 100,
-      suppressMovable: true,
-      cellRenderer: makeEditableRenderer('shock_type', 'select', ['Absolute', 'Relative', 'Log']),
-    },
-    {
-      colId: 'tenorDim',
-      field: 'tenor_dimension',
-      headerName: 'Tenor Dim',
-      flex: 1,
-      minWidth: 90,
-      suppressMovable: true,
-      cellRenderer: makeEditableRenderer('tenor_dimension'),
-    },
-    {
-      colId: 'rfId',
-      field: 'risk_factor_id',
-      headerName: 'RF ID',
-      flex: 0.95,
-      minWidth: 80,
-      suppressMovable: true,
-    },
-    {
-      colId: 'actions',
-      headerName: 'Actions',
-      width: 160,
-      resizable: false,
-      suppressMovable: true,
-      suppressSizeToFit: true,
-      cellRenderer: ActionsRenderer,
-    },
+  const colDefs = useMemo(() => [
+    { colId: 'name', field: 'risk_factor_name', headerName: 'Name', flex: 2, minWidth: 200, suppressMovable: true },
+    { colId: 'clearingHouse', field: 'alt_clearing_house', headerName: 'Clearing House', flex: 1.3, minWidth: 100, suppressMovable: true },
+    { colId: 'futureTenor', field: 'future_tenor', headerName: 'Future Tenor', flex: 1, minWidth: 90, suppressMovable: true, cellRenderer: makeEditableRenderer('future_tenor') },
+    { colId: 'termCode', field: 'term_code', headerName: 'Term Code', flex: 1, minWidth: 90, suppressMovable: true, cellRenderer: makeEditableRenderer('term_code') },
+    { colId: 'shockType', field: 'shock_type', headerName: 'Shock Type', flex: 1.2, minWidth: 100, suppressMovable: true, cellRenderer: makeEditableRenderer('shock_type', 'select', ['Absolute', 'Relative', 'Log']) },
+    { colId: 'tenorDim', field: 'tenor_dimension', headerName: 'Tenor Dim', flex: 1, minWidth: 90, suppressMovable: true, cellRenderer: makeEditableRenderer('tenor_dimension') },
+    { colId: 'rfId', field: 'risk_factor_id', headerName: 'RF ID', flex: 0.95, minWidth: 80, suppressMovable: true },
+    { colId: 'actions', headerName: 'Actions', width: 160, resizable: false, suppressMovable: true, suppressSizeToFit: true, cellRenderer: ActionsRenderer },
   ], []);
 
   // Redraw rows when context changes so renderers pick up new edit state
@@ -283,15 +205,15 @@ export function RfmGrid({ rowData, context, onGridReady }: RfmGridProps) {
     prevContextRef.current = context;
   }, [context]);
 
-  const handleGridReady = useCallback((e: GridReadyEvent) => {
+  const handleGridReady = useCallback((e) => {
     gridApiRef.current = e.api;
     onGridReady?.(e.api);
   }, [onGridReady]);
 
-  const getDataPath: GetDataPath<RfRow> = useCallback((row) => row._path, []);
+  const getDataPath = useCallback((row) => row._path, []);
 
   return (
-    <AgGridReact<RfRow>
+    <AgGridReact
       className="rfm-grid ag-theme-quartz"
       rowData={rowData}
       columnDefs={colDefs}

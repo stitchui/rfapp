@@ -5,50 +5,33 @@ import {
   Typography, CircularProgress,
 } from '@mui/material';
 import { AgGridReact } from 'ag-grid-react';
-import type { ColDef, GridApi, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
-import type { RfRow } from './types';
 import { getRiskFactorTimeseriesDropdowns, getRiskFactorTimeseries, saveRiskFactorMappings } from '../../api/riskFactorApi';
 
-type DropdownTree = Record<string, { curve_name: string[]; currency: string[] }>;
+const EMPTY = { rfClass: '', currency: '', curve: '' };
 
-interface DropdownSelections {
-  rfClass: string;
-  currency: string;
-  curve: string;
-}
-
-const EMPTY: DropdownSelections = { rfClass: '', currency: '', curve: '' };
-
-interface Props {
-  open: boolean;
-  onClose: () => void;
-  onCreated: (rows: RfRow[]) => void;
-}
-
-export function CreateDialog({ open, onClose, onCreated }: Props) {
-  const [sel, setSel] = useState<DropdownSelections>(EMPTY);
-  const [niwaRows, setNiwaRows] = useState<RfRow[]>([]);
-  const [selectedRows, setSelectedRows] = useState<RfRow[]>([]);
+export function CreateDialog({ open, onClose, onCreated }) {
+  const [sel, setSel] = useState(EMPTY);
+  const [niwaRows, setNiwaRows] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [fetched, setFetched] = useState(false);
-  const [tree, setTree] = useState<DropdownTree>({});
-  const gridApiRef = useRef<GridApi | null>(null);
+  const [tree, setTree] = useState({});
+  const gridApiRef = useRef(null);
 
   useEffect(() => {
     if (open && Object.keys(tree).length === 0) {
-      getRiskFactorTimeseriesDropdowns().then(data => setTree(data as DropdownTree));
+      getRiskFactorTimeseriesDropdowns().then(data => setTree(data));
     }
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Derived dropdown options
   const classOptions = Object.keys(tree);
-  const currencyOptions: string[] = sel.rfClass ? (tree[sel.rfClass]?.currency ?? []) : [];
-  const curveOptions: string[] = sel.rfClass ? (tree[sel.rfClass]?.curve_name ?? []) : [];
+  const currencyOptions = sel.rfClass ? (tree[sel.rfClass]?.currency ?? []) : [];
+  const curveOptions = sel.rfClass ? (tree[sel.rfClass]?.curve_name ?? []) : [];
 
-  const handleClassChange = (val: string) => setSel({ ...EMPTY, rfClass: val });
-  const handleCurrencyChange = (val: string) => setSel(s => ({ ...s, currency: val }));
-  const handleCurveChange = (val: string) => setSel(s => ({ ...s, curve: val }));
+  const handleClassChange = (val) => setSel({ ...EMPTY, rfClass: val });
+  const handleCurrencyChange = (val) => setSel(s => ({ ...s, currency: val }));
+  const handleCurveChange = (val) => setSel(s => ({ ...s, curve: val }));
 
   const handleFetch = async () => {
     setLoading(true);
@@ -63,14 +46,13 @@ export function CreateDialog({ open, onClose, onCreated }: Props) {
     setFetched(true);
   };
 
-  const handleSelectionChanged = useCallback((e: SelectionChangedEvent) => {
+  const handleSelectionChanged = useCallback((e) => {
     setSelectedRows(e.api.getSelectedRows());
   }, []);
 
   const handleCreate = async () => {
     if (!selectedRows.length) return;
     setBusy(true);
-    // Read from gridApi to capture any cell edits made after row selection
     const rows = gridApiRef.current?.getSelectedRows() ?? selectedRows;
     const payload = rows.map(r => {
       const { _path, ...rest } = r;
@@ -91,7 +73,7 @@ export function CreateDialog({ open, onClose, onCreated }: Props) {
     onClose();
   };
 
-  const colDefs = useMemo<ColDef<RfRow>[]>(() => [
+  const colDefs = useMemo(() => [
     {
       colId: 'checkbox',
       checkboxSelection: true,
@@ -114,17 +96,14 @@ export function CreateDialog({ open, onClose, onCreated }: Props) {
     { field: 'risk_factor_id', headerName: 'RF ID', flex: 0.8, minWidth: 70, valueFormatter: () => '0' },
   ], []);
 
-  const handleGridReady = useCallback((e: GridReadyEvent) => {
+  const handleGridReady = useCallback((e) => {
     gridApiRef.current = e.api;
   }, []);
 
-  const SelectField = ({ label, value, options, onChange, disabled }: {
-    label: string; value: string; options: string[];
-    onChange: (v: string) => void; disabled?: boolean;
-  }) => (
+  const SelectField = ({ label, value, options, onChange, disabled }) => (
     <FormControl size="small" sx={{ minWidth: 140, flex: 1 }} disabled={disabled || options.length === 0}>
       <InputLabel sx={{ fontSize: 13 }}>{label}</InputLabel>
-      <Select value={value} label={label} onChange={e => onChange(e.target.value as string)} sx={{ fontSize: 13 }}>
+      <Select value={value} label={label} onChange={e => onChange(e.target.value)} sx={{ fontSize: 13 }}>
         {options.map(o => <MenuItem key={o} value={o} sx={{ fontSize: 13 }}>{o}</MenuItem>)}
       </Select>
     </FormControl>
@@ -135,7 +114,6 @@ export function CreateDialog({ open, onClose, onCreated }: Props) {
       <DialogTitle sx={{ fontSize: 18, fontWeight: 600, pb: 1 }}>Create Risk Factor</DialogTitle>
 
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '12px !important' }}>
-        {/* Dropdowns */}
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <SelectField label="Class" value={sel.rfClass} options={classOptions} onChange={handleClassChange} />
           <SelectField label="Currency" value={sel.currency} options={currencyOptions} onChange={handleCurrencyChange} disabled={!sel.rfClass} />
@@ -151,7 +129,6 @@ export function CreateDialog({ open, onClose, onCreated }: Props) {
           </Button>
         </Box>
 
-        {/* NIWA Grid */}
         {fetched && (
           <Box sx={{ flex: 1, minHeight: 0 }}>
             {niwaRows.length === 0 ? (
@@ -162,18 +139,18 @@ export function CreateDialog({ open, onClose, onCreated }: Props) {
                   {niwaRows.length} records found · {selectedRows.length} selected
                 </Typography>
                 <div className="ag-theme-quartz" style={{ height: 'calc(100% - 28px)' }}>
-                <AgGridReact<RfRow>
-                  rowData={niwaRows}
-                  columnDefs={colDefs}
-                  rowSelection="multiple"
-                  suppressRowClickSelection
-                  onSelectionChanged={handleSelectionChanged}
-                  onGridReady={handleGridReady}
-                  getRowId={p => p.data.risk_factor_name}
-                  rowHeight={42}
-                  headerHeight={42}
-                  stopEditingWhenCellsLoseFocus
-                />
+                  <AgGridReact
+                    rowData={niwaRows}
+                    columnDefs={colDefs}
+                    rowSelection="multiple"
+                    suppressRowClickSelection
+                    onSelectionChanged={handleSelectionChanged}
+                    onGridReady={handleGridReady}
+                    getRowId={p => p.data.risk_factor_name}
+                    rowHeight={42}
+                    headerHeight={42}
+                    stopEditingWhenCellsLoseFocus
+                  />
                 </div>
               </Box>
             )}
