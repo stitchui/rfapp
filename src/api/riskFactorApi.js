@@ -1,6 +1,6 @@
 import mockRfData from './mockRfData.json';
 import mockDropdownData from './mockDropdownData.json';
-import mockNiwaData from './mockNiwaData.json';
+import mockCloneData from './mockCloneData.json';
 
 function mapApiRow(row) {
   return {
@@ -56,7 +56,7 @@ export const getRiskFactorTimeseriesDropdowns = async () => {
 
 export const getRiskFactorTimeseries = async ({ risk_factor_class, currency, curve_name } = {}) => {
   await delay(800);
-  return mockNiwaData.data.map(r => ({
+  return mockCloneData.data.map(r => ({
     _path: [r.risk_factor_class, r.rf_subclass, r.rf_type, r.currency, r.curve_name, r.risk_factor_name],
     risk_factor_id: 0,
     risk_factor_name: r.risk_factor_name,
