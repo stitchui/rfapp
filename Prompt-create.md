@@ -11,9 +11,9 @@ I need to implement a **Create Risk Factor** dialog for the Risk Factor Mappings
 **Reference repo:** https://github.com/stitchui/rfapp
 
 Look at this file as the reference implementation:
-- `src/features/RiskFactorMappings/CreateDialog.tsx` — the complete Create dialog
-- `src/features/RiskFactorMappings/index.tsx` — how the dialog is wired into the parent (state, callbacks, `onCreated`)
-- `src/api/riskFactorApi.ts` — API function signatures to match
+- `src/features/RiskFactorMappings/CreateDialog.jsx` — the complete Create dialog
+- `src/features/RiskFactorMappings/index.jsx` — how the dialog is wired into the parent (state, callbacks, `onCreated`)
+- `src/api/riskFactorApi.js` — API function signatures to match
 
 ---
 
@@ -44,12 +44,12 @@ Look at this file as the reference implementation:
 
 ## API functions to use
 
-Refer to `riskFactorApi.ts` (or `riskFactorApi.js` in the work codebase) for the exact function signatures and endpoint URLs. The three functions needed for this feature are:
+Refer to `riskFactorApi.js` for the exact function signatures and endpoint URLs. The three functions needed for this feature are:
 
-- `getRiskFactorTimeseriesDropdowns` — call on component mount to populate the cascading dropdowns
-- `getRiskFactorTimeseries` — call on "Clone" button click with selected dropdown values:
+- `getRiskFactorTimeseriesDropdown` — call on component mount to populate the cascading dropdowns
+- `postRiskFactorTimeseries` — call on "Clone" button click with selected dropdown values:
   ```ts
-  getRiskFactorTimeseries({ risk_factor_class: sel.risk_factor_class, currency: sel.currency, curve_name: sel.curve_name })
+  postRiskFactorTimeseries({ risk_factor_class: sel.risk_factor_class, currency: sel.currency, curve_name: sel.curve_name })
   ```
 - `saveRiskFactorMappings` — call on "Create" button click with selected rows (each with `risk_factor_id: 0`, `_path` stripped)
 
@@ -123,4 +123,5 @@ const onCreated = useCallback((rows: RfRow[]) => {
 - The clone AG Grid inside the modal is a **flat list** (not treeData) — no `getDataPath`, no `autoGroupColumnDef`
 - `getRowId` on the clone grid: use `risk_factor_name` (all rows have `risk_factor_id: 0` so it can't be used as a key)
 - All columns use AG Grid's native `editable: true`; `shock_type` uses `agSelectCellEditor`
-- On Create, read rows from `gridApi.getSelectedRows()` (not from state) to capture any cell edits made after row selection
+- All rows are selected by default when clone results load — use `onFirstDataRendered` to call `api.selectAll()` and sync `selectedRows` state
+- On Create, call `gridApi.stopEditing()` first to flush any active cell edit, then read rows from `gridApi.getSelectedRows()` (not from state) to capture edits

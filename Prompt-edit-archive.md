@@ -11,9 +11,8 @@ I need to implement Edit and Archive functionality for a Risk Factor Mappings gr
 **Reference repo:** https://github.com/stitchui/rfapp
 
 Look at these files as the reference implementation:
-- `src/features/RiskFactorMappings/RfmGrid.tsx` — grid setup, cell renderers, actions column
-- `src/features/RiskFactorMappings/index.tsx` — state management, API calls
-- `src/features/RiskFactorMappings/types.ts` — `RfRow` and `RfmGridContext` interfaces
+- `src/features/RiskFactorMappings/RfmGrid.jsx` — grid setup, cell renderers, actions column
+- `src/features/RiskFactorMappings/index.jsx` — state management, API calls
 
 ---
 

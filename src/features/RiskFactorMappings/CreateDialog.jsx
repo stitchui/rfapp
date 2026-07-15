@@ -5,7 +5,7 @@ import {
   Typography, CircularProgress,
 } from '@mui/material';
 import { AgGridReact } from 'ag-grid-react';
-import { getRiskFactorTimeseriesDropdowns, getRiskFactorTimeseries, saveRiskFactorMappings } from '../../api/riskFactorApi';
+import { getRiskFactorTimeseriesDropdown, postRiskFactorTimeseries, saveRiskFactorMappings } from '../../api/riskFactorApi';
 
 const EMPTY = { risk_factor_class: '', currency: '', curve_name: '' };
 
@@ -21,7 +21,7 @@ export function CreateDialog({ open, onClose, onCreated }) {
 
   useEffect(() => {
     if (open && Object.keys(tree).length === 0) {
-      getRiskFactorTimeseriesDropdowns().then(data => setTree(data));
+      getRiskFactorTimeseriesDropdown().then(data => setTree(data));
     }
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -38,7 +38,7 @@ export function CreateDialog({ open, onClose, onCreated }) {
     setFetched(false);
     setCloneRows([]);
     setSelectedRows([]);
-    const rows = await getRiskFactorTimeseries({
+    const rows = await postRiskFactorTimeseries({
       risk_factor_class: sel.risk_factor_class, currency: sel.currency, curve_name: sel.curve_name,
     });
     setCloneRows(rows);

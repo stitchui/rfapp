@@ -50,11 +50,13 @@ export const getRiskFactorMappings = async () => {
   return mockRfData.data.map(mapApiRow);
 };
 
-export const getRiskFactorTimeseriesDropdowns = async () => {
+// axiosInstance.get('/var/riskfactor/timeseries/dropdown')
+export const getRiskFactorTimeseriesDropdown = async () => {
   return mockDropdownData.data;
 };
 
-export const getRiskFactorTimeseries = async ({ risk_factor_class, currency, curve_name } = {}) => {
+// axiosInstance.post('/var/riskfactor/timeseries', { risk_factor_class, currency, curve_name })
+export const postRiskFactorTimeseries = async ({ risk_factor_class, currency, curve_name } = {}) => {
   await delay(800);
   return mockCloneData.data.map(r => ({
     _path: [r.risk_factor_class, r.rf_subclass, r.rf_type, r.currency, r.curve_name, r.risk_factor_name],
