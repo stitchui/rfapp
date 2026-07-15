@@ -100,6 +100,11 @@ export function CreateDialog({ open, onClose, onCreated }) {
     gridApiRef.current = e.api;
   }, []);
 
+  const handleFirstDataRendered = useCallback((e) => {
+    e.api.selectAll();
+    setSelectedRows(e.api.getSelectedRows());
+  }, []);
+
   const SelectField = ({ label, value, options, onChange, disabled }) => (
     <FormControl size="small" sx={{ minWidth: 140, flex: 1 }} disabled={disabled || options.length === 0}>
       <InputLabel sx={{ fontSize: 13 }}>{label}</InputLabel>
@@ -146,6 +151,7 @@ export function CreateDialog({ open, onClose, onCreated }) {
                     suppressRowClickSelection
                     onSelectionChanged={handleSelectionChanged}
                     onGridReady={handleGridReady}
+                    onFirstDataRendered={handleFirstDataRendered}
                     getRowId={p => p.data.risk_factor_name}
                     rowHeight={42}
                     headerHeight={42}
