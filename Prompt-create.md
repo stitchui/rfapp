@@ -20,10 +20,12 @@ Look at this file as the reference implementation:
 ## User flow
 
 1. User clicks **+ Create** button → MUI Dialog opens (`fullWidth`, `maxWidth="xl"`, `height: 85vh`)
-2. **5 cascading dropdowns**: Class → Sub Class → Type → Currency → Curve
-   - Each dropdown only enables when its parent has a value
-   - Options are driven by a nested JSON tree from `GET /var/riskfactor/timeseries/dropdowns`
+2. **3 dropdowns**: Class → Currency → Curve
+   - Currency and Curve enable as soon as Class is selected
+   - Options are driven by a flat JSON from `GET /var/riskfactor/timeseries/dropdowns`
    - Fetch this on component mount (not on modal open) so options are ready instantly
+   - The dropdown data shape: `{ IR: { curve_name: [...], currency: [] }, FX: { curve_name: [], currency: [...] } }`
+   - Currency/Curve disable automatically when their array is empty (e.g. IR has no currency, FX has no curve)
 3. **Fetch NIWA Data** button — enabled as soon as Class is selected
    - Calls `POST /var/riskfactor/timeseries` with selected filter values
    - Shows AG Grid with results (flat list, not tree)
@@ -50,21 +52,19 @@ Refer to `riskFactorApi.ts` (or `riskFactorApi.js` in the work codebase) for the
 
 ---
 
-## Cascading dropdown logic
+## Dropdown logic
 
 ```ts
+// tree shape: { IR: { curve_name: [...], currency: [] }, FX: { curve_name: [], currency: [...] } }
 const classOptions = Object.keys(tree);
-const subClassOptions = sel.rfClass ? Object.keys(tree[sel.rfClass] ?? {}) : [];
-const typeOptions = sel.subClass ? Object.keys(tree[sel.rfClass]?.[sel.subClass] ?? {}) : [];
-const currencyOptions = sel.type ? Object.keys(tree[sel.rfClass]?.[sel.subClass]?.[sel.type] ?? {}) : [];
-const curveOptions = sel.currency ? (tree[sel.rfClass]?.[sel.subClass]?.[sel.type]?.[sel.currency] ?? []) : [];
+const currencyOptions = sel.rfClass ? (tree[sel.rfClass]?.currency ?? []) : [];
+const curveOptions = sel.rfClass ? (tree[sel.rfClass]?.curve_name ?? []) : [];
+// Currency/Curve dropdowns are disabled automatically when their options array is empty
 ```
 
-Each downstream dropdown resets when its parent changes:
+Class change resets all downstream selections:
 ```ts
 const handleClassChange = (val) => setSel({ ...EMPTY, rfClass: val });
-const handleSubClassChange = (val) => setSel(s => ({ ...s, subClass: val, type: '', currency: '', curve: '' }));
-// etc.
 ```
 
 ---
@@ -103,7 +103,7 @@ const onCreated = useCallback((rows: RfRow[]) => {
 | State | Type | Purpose |
 |---|---|---|
 | `tree` | `DropdownTree` | Nested options from API, fetched on mount |
-| `sel` | `DropdownSelections` | Current dropdown values (`rfClass, subClass, type, currency, curve`) |
+| `sel` | `DropdownSelections` | Current dropdown values (`rfClass, currency, curve`) |
 | `niwaRows` | `RfRow[]` | Rows returned from NIWA fetch |
 | `selectedRows` | `RfRow[]` | Rows checked in AG Grid |
 | `loading` | `boolean` | Fetch NIWA Data in progress |
