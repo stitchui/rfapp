@@ -52,6 +52,7 @@ export function CreateDialog({ open, onClose, onCreated }) {
 
   const handleCreate = async () => {
     if (!selectedRows.length) return;
+    gridApiRef.current?.stopEditing();
     setBusy(true);
     const rows = gridApiRef.current?.getSelectedRows() ?? selectedRows;
     const payload = rows.map(r => {
