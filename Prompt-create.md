@@ -122,3 +122,5 @@ const onCreated = useCallback((rows: RfRow[]) => {
 - Adapt API function calls to match the work codebase's `riskFactorApi` (axios-based)
 - The NIWA AG Grid inside the modal is a **flat list** (not treeData) — no `getDataPath`, no `autoGroupColumnDef`
 - `getRowId` on the NIWA grid: use `risk_factor_name` (all rows have `risk_factor_id: 0` so it can't be used as a key)
+- All columns use AG Grid's native `editable: true`; `shock_type` uses `agSelectCellEditor`
+- On Create, read rows from `gridApi.getSelectedRows()` (not from state) to capture any cell edits made after row selection

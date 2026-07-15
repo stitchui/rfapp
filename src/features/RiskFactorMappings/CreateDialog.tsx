@@ -70,14 +70,16 @@ export function CreateDialog({ open, onClose, onCreated }: Props) {
   const handleCreate = async () => {
     if (!selectedRows.length) return;
     setBusy(true);
-    const payload = selectedRows.map(r => {
+    // Read from gridApi to capture any cell edits made after row selection
+    const rows = gridApiRef.current?.getSelectedRows() ?? selectedRows;
+    const payload = rows.map(r => {
       const { _path, ...rest } = r;
       void _path;
       return { ...rest, risk_factor_id: 0 };
     });
     await saveRiskFactorMappings(payload);
     setBusy(false);
-    onCreated(selectedRows);
+    onCreated(rows);
     handleClose();
   };
 
