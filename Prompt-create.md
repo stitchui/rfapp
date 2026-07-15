@@ -24,7 +24,9 @@ Look at this file as the reference implementation:
    - Currency and Curve enable as soon as Class is selected
    - Options are driven by a flat JSON from `GET /var/riskfactor/timeseries/dropdown`
    - Fetch this on component mount (not on modal open) so options are ready instantly
-   - The dropdown data shape: `{ IR: { curve_name: [...], currency: [] }, FX: { curve_name: [], currency: [...] } }`
+   - The API returns an array: `[{ class_name: 'IR', curve_name: [...], currency: [] }, { class_name: 'FX', ... }]`
+   - Transform to a keyed object in `getRiskFactorTimeseriesDropdown`: `Object.fromEntries(list.map(({ class_name, ...rest }) => [class_name, rest]))`
+   - Component uses the keyed shape: `{ IR: { curve_name: [...], currency: [] }, FX: { curve_name: [], currency: [...] } }`
    - Currency/Curve disable automatically when their array is empty (e.g. IR has no currency, FX has no curve)
 3. **Clone** button — enabled as soon as Class is selected
    - Calls `POST /var/riskfactor/timeseries` with selected filter values

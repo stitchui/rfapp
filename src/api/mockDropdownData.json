@@ -1,6 +1,7 @@
 {
-  "data": {
-    "IR": {
+  "data": [
+    {
+      "class_name": "IR",
       "curve_name": [
         "AED Xccy Basis",
         "AEDOIS vs BASIS",
@@ -27,18 +28,26 @@
         "GBP Xccy Basis",
         "GBPOIS vs BASIS",
         "HIBOR_1M vs HIBOR",
-        "HKD Xccy Basis"
+        "HKD Xccy Basis",
+        "WIBOR",
+        "WIBOR_1M vs WIBOR",
+        "WIBOR_6M vs WIBOR",
+        "ZAR Xccy Basis",
+        "ZAROIS vs BASIS",
+        "ZARONIA vs JIBAR"
       ],
       "currency": []
     },
-    "FX": {
+    {
+      "class_name": "FX",
       "curve_name": [],
       "currency": [
-        "AED",
-        "AUD",
-        "BRL",
-        "ZAR"
+        "AED", "AUD", "BRL", "CAD", "CHF", "CLF", "CLP", "CNH", "CNY",
+        "COP", "COU", "CZK", "DKK", "EUR", "GBP", "HKD", "HUF", "IDR",
+        "ILS", "INR", "JPY", "KRW", "MXN", "MYR", "NOK", "NZD", "PEN",
+        "PHP", "PLN", "RUR", "SAR", "SEK", "SGD", "THB", "TRY", "TWD",
+        "USD", "ZAR"
       ]
     }
-  }
+  ]
 }

@@ -51,8 +51,11 @@ export const getRiskFactorMappings = async () => {
 };
 
 // axiosInstance.get('/var/riskfactor/timeseries/dropdown')
+// API returns array: [{ class_name, curve_name, currency }, ...]
+// Transform to keyed object: { IR: { curve_name, currency }, FX: ... }
 export const getRiskFactorTimeseriesDropdown = async () => {
-  return mockDropdownData.data;
+  const list = mockDropdownData.data;
+  return Object.fromEntries(list.map(({ class_name, curve_name, currency }) => [class_name, { curve_name, currency }]));
 };
 
 // axiosInstance.post('/var/riskfactor/timeseries', { risk_factor_class, currency, curve_name })
