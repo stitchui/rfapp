@@ -22,7 +22,7 @@ Look at this file as the reference implementation:
 1. User clicks **+ Create** button → MUI Dialog opens (`fullWidth`, `maxWidth="xl"`, `height: 85vh`)
 2. **3 dropdowns**: Class → Currency → Curve
    - Currency and Curve enable as soon as Class is selected
-   - Options are driven by a flat JSON from `GET /var/riskfactor/timeseries/dropdowns`
+   - Options are driven by a flat JSON from `GET /var/riskfactor/timeseries/dropdown`
    - Fetch this on component mount (not on modal open) so options are ready instantly
    - The dropdown data shape: `{ IR: { curve_name: [...], currency: [] }, FX: { curve_name: [], currency: [...] } }`
    - Currency/Curve disable automatically when their array is empty (e.g. IR has no currency, FX has no curve)
@@ -46,9 +46,15 @@ Look at this file as the reference implementation:
 
 Refer to `riskFactorApi.js` for the exact function signatures and endpoint URLs. The three functions needed for this feature are:
 
+| Function | Method | Endpoint |
+|---|---|---|
+| `getRiskFactorTimeseriesDropdown` | GET | `/var/riskfactor/timeseries/dropdown` |
+| `postRiskFactorTimeseries` | POST | `/var/riskfactor/timeseries` |
+| `saveRiskFactorMappings` | POST | `/var/riskfactor/mappings/save` |
+
 - `getRiskFactorTimeseriesDropdown` — call on component mount to populate the cascading dropdowns
 - `postRiskFactorTimeseries` — call on "Clone" button click with selected dropdown values:
-  ```ts
+  ```js
   postRiskFactorTimeseries({ risk_factor_class: sel.risk_factor_class, currency: sel.currency, curve_name: sel.curve_name })
   ```
 - `saveRiskFactorMappings` — call on "Create" button click with selected rows (each with `risk_factor_id: 0`, `_path` stripped)

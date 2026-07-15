@@ -21,20 +21,29 @@ Look at these files as the reference implementation:
 - ⋮ menu on curve-level group rows (level 4) with "Edit" and "Archive Curve" options
 - Edit mode activates per-curve — editable cells (input/select) appear on all leaf rows under that curve
 - Actions column shows Cancel / Save buttons (Save disabled until a field is actually changed)
-- `POST /mappings/save` — array of only the dirty rows with full fields (no `_path`); clean rows are excluded
+- `saveRiskFactorMappings` → `POST /var/riskfactor/mappings/save` — array of only the dirty rows with full fields (no `_path`); clean rows are excluded
 
 ---
 
 ## Archive behavior
 
-- **Archive Curve** from ⋮ menu → confirmation dialog → `POST /mappings/archive`
+- **Archive Curve** from ⋮ menu → confirmation dialog → `archiveRiskFactorMappings` → `POST /var/riskfactor/mappings/archive`
   ```json
   { "risk_factor_ids": [100001, 100002, ...] }
   ```
-- **Archive single row** via icon button on leaf rows → confirmation dialog → `POST /mappings/archive`
+- **Archive single row** via icon button on leaf rows → confirmation dialog → `archiveRiskFactorMappings` → `POST /var/riskfactor/mappings/archive`
   ```json
   { "risk_factor_ids": [100001] }
   ```
+
+---
+
+## API functions
+
+| Function | Method | Endpoint |
+|---|---|---|
+| `saveRiskFactorMappings` | POST | `/var/riskfactor/mappings/save` |
+| `archiveRiskFactorMappings` | POST | `/var/riskfactor/mappings/archive` |
 
 ---
 
