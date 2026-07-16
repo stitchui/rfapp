@@ -71,7 +71,17 @@ const classOptions = Object.keys(tree);
 const currencyOptions = sel.risk_factor_class ? (tree[sel.risk_factor_class]?.currency ?? []) : [];
 const curveOptions = sel.risk_factor_class ? (tree[sel.risk_factor_class]?.curve_name ?? []) : [];
 // Currency/Curve dropdowns are disabled automatically when their options array is empty
+// e.g. IR → currency: [] → Currency dropdown disables; FX → curve_name: [] → Curve dropdown disables
+// Do NOT hardcode which class disables which dropdown — let the empty array drive it
 ```
+
+The `SelectField` component must disable when `options.length === 0` (in addition to when no class is selected):
+```js
+// disabled when no class selected OR when the options array for this field is empty
+<SelectField disabled={!sel.risk_factor_class || options.length === 0} ... />
+```
+
+Do NOT add an "ALL" option — if the array is empty, the dropdown is simply disabled.
 
 Class change resets all downstream selections:
 ```ts
