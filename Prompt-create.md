@@ -147,5 +147,12 @@ const onCreated = useCallback((rows: RfRow[]) => {
 - The clone AG Grid inside the modal is a **flat list** (not treeData) — no `getDataPath`, no `autoGroupColumnDef`
 - `getRowId` on the clone grid: use `risk_factor_name` (all rows have `risk_factor_id: 0` so it can't be used as a key)
 - All columns use AG Grid's native `editable: true`; `shock_type` uses `agSelectCellEditor`
-- All rows are selected by default when clone results load — use `onFirstDataRendered` to call `api.selectAll()` and sync `selectedRows` state
+- All rows are selected by default when clone results load — use `onFirstDataRendered` to call `api.selectAll()` and sync `selectedRows` state:
+  ```js
+  const handleFirstDataRendered = (e) => {
+    e.api.selectAll();
+    setSelectedRows(e.api.getSelectedRows());
+  };
+  // wire it: <AgGridReact onFirstDataRendered={handleFirstDataRendered} ... />
+  ```
 - On Create, call `gridApi.stopEditing()` first to flush any active cell edit, then read rows from `gridApi.getSelectedRows()` (not from state) to capture edits
