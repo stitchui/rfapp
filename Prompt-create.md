@@ -21,13 +21,19 @@ Look at this file as the reference implementation:
 
 1. User clicks **+ Create** button → MUI Dialog opens (`fullWidth`, `maxWidth="xl"`, `height: 85vh`)
 2. **3 dropdowns**: Class → Currency → Curve
-   - Currency and Curve enable as soon as Class is selected
    - Options are driven by a flat JSON from `GET /var/riskfactor/timeseries/dropdown`
    - Fetch this on component mount (not on modal open) so options are ready instantly
    - The API returns an array: `[{ class_name: 'IR', curve_name: [...], currency: [] }, { class_name: 'FX', ... }]`
    - Transform to a keyed object in `getRiskFactorTimeseriesDropdown`: `Object.fromEntries(list.map(({ class_name, ...rest }) => [class_name, rest]))`
    - Component uses the keyed shape: `{ IR: { curve_name: [...], currency: [] }, FX: { curve_name: [], currency: [...] } }`
-   - Currency/Curve disable automatically when their array is empty (e.g. IR has no currency, FX has no curve)
+
+   **Dropdown behavior per class selection:**
+   - Initial state: all 3 dropdowns empty, Clone button disabled
+   - User selects **IR** → Currency disables (IR has no currencies), Curve enables with IR curve list, Clone enables
+   - User selects **FX** → Currency enables with FX currency list, Curve disables (FX has no curves), Clone enables
+   - Changing Class resets Currency and Curve selections
+   - Currency/Curve disable when their options array is empty — **do not hardcode per class, let the empty array drive it**
+   - **No "ALL" option** — if the array is empty, the dropdown is simply disabled
 3. **Clone** button — enabled as soon as Class is selected
    - Calls `POST /var/riskfactor/timeseries` with selected filter values
    - Shows AG Grid with results (flat list, not tree)
