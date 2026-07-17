@@ -48,3 +48,36 @@ function EmptySearchState() {
 
 export default EmptySearchState;
 ```
+
+---
+
+```jsx
+// Legend, shown above the grid
+function EditableLegend() {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+      <Box
+        sx={{
+          width: 10,
+          height: 10,
+          borderRadius: '2px',
+          bgcolor: '#eff4fb',
+        }}
+      />
+      <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>
+        Blue = editable field
+      </Typography>
+    </Box>
+  );
+}
+
+
+---
+
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary' }}>
+          {rows.length} records found
+        </Typography>
+        <EditableLegend />
+      </Box>
+```
